@@ -5,11 +5,12 @@ Coaches, Consultants, Creator, digitale Produktverkäufer, Affiliates, Influence
 
 ## Routen
 
-| Route           | Datei                         | Inhalt                                               |
-| --------------- | ----------------------------- | ---------------------------------------------------- |
-| `/os`           | `app/routes/os._index.tsx`    | Landingpage (Hero, Module, Prozess, Preise, FAQ)     |
-| `/os/dashboard` | `app/routes/os.dashboard.tsx` | Admin-Dashboard (KPIs, Umsatz-Chart, Pipeline)       |
-| `/os/crm`       | `app/routes/os.crm.tsx`       | CRM & Leads (Liste, Kanban-Board, Lead-Detail-Panel) |
+| Route             | Datei                           | Inhalt                                                  |
+| ----------------- | ------------------------------- | ------------------------------------------------------- |
+| `/os`             | `app/routes/os._index.tsx`      | Landingpage (Hero, Module, Prozess, Preise, FAQ)        |
+| `/os/dashboard`   | `app/routes/os.dashboard.tsx`   | Admin-Dashboard (KPIs, Umsatz-Chart, Pipeline)          |
+| `/os/crm`         | `app/routes/os.crm.tsx`         | CRM & Leads (Liste, Kanban-Board, Lead-Detail-Panel)    |
+| `/os/automations` | `app/routes/os.automations.tsx` | Automationen (Wenn/Falls/Dann-Flows, Toggles, Vorlagen) |
 
 Gemeinsame Shell (Sidebar + Topbar) für alle Module: `OsShell.tsx`. Noch nicht gebaute
 Module sind in der Navigation mit „Bald" markiert.

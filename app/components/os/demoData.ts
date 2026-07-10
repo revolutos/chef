@@ -288,3 +288,148 @@ export const crmLeads: CrmLead[] = [
     notes: 'Über Partner-Link von Tim B. gekommen. Sehr aktiv in der Community.',
   },
 ];
+
+/* ------------------------------ Automationen ------------------------------ */
+
+export type AutomationStatus = 'Aktiv' | 'Pausiert' | 'Entwurf';
+
+export type AutomationIcon = 'mail' | 'lead' | 'content' | 'invoice' | 'chat' | 'report';
+
+export interface Automation {
+  id: string;
+  name: string;
+  description: string;
+  trigger: string;
+  condition: string;
+  action: string;
+  status: AutomationStatus;
+  runs30d: number;
+  timeSavedHours: number;
+  lastRun: string;
+  icon: AutomationIcon;
+}
+
+export const automations: Automation[] = [
+  {
+    id: 'a1',
+    name: 'Lead-Nurture-Sequenz',
+    description: 'Begrüßt neue Leads automatisch und wärmt sie mit einer 5-teiligen Sequenz auf.',
+    trigger: 'Neuer Lead',
+    condition: 'KI-Score ≥ 50',
+    action: 'E-Mail-Sequenz starten',
+    status: 'Aktiv',
+    runs30d: 214,
+    timeSavedHours: 12.5,
+    lastRun: 'vor 18 Min.',
+    icon: 'mail',
+  },
+  {
+    id: 'a2',
+    name: 'Heiße Leads alarmieren',
+    description: 'Meldet dir sofort, wenn ein Lead abschlussbereit wird — bevor er kalt wird.',
+    trigger: 'KI-Score steigt über 80',
+    condition: 'Phase ≠ Gewonnen',
+    action: 'Push + WhatsApp an dich',
+    status: 'Aktiv',
+    runs30d: 37,
+    timeSavedHours: 4,
+    lastRun: 'vor 1 Std.',
+    icon: 'lead',
+  },
+  {
+    id: 'a3',
+    name: 'Content-Recycling',
+    description: 'Verwandelt deinen besten Post der Woche automatisch in ein neues Reel-Skript.',
+    trigger: 'Montags, 08:00',
+    condition: 'Top-Post nach Reichweite',
+    action: 'Reel-Skript + Caption generieren',
+    status: 'Aktiv',
+    runs30d: 4,
+    timeSavedHours: 6,
+    lastRun: 'Mo, 08:00',
+    icon: 'content',
+  },
+  {
+    id: 'a4',
+    name: 'Rechnung bei Abschluss',
+    description: 'Erstellt und versendet die Rechnung in dem Moment, in dem der Deal gewonnen ist.',
+    trigger: 'Deal gewonnen',
+    condition: 'Immer',
+    action: 'Rechnung erstellen & senden',
+    status: 'Aktiv',
+    runs30d: 9,
+    timeSavedHours: 3,
+    lastRun: 'Gestern, 17:05',
+    icon: 'invoice',
+  },
+  {
+    id: 'a5',
+    name: 'No-Show Follow-up',
+    description: 'Holt verpasste Calls zurück: sendet automatisch einen neuen Terminlink.',
+    trigger: 'Call verpasst',
+    condition: 'KI-Score ≥ 60',
+    action: 'Neuen Terminlink senden',
+    status: 'Pausiert',
+    runs30d: 11,
+    timeSavedHours: 2,
+    lastRun: '28. Jun, 14:10',
+    icon: 'chat',
+  },
+  {
+    id: 'a6',
+    name: 'Wochenreport',
+    description: 'Fasst Umsatz, Leads und Content-Performance jeden Freitag für dich zusammen.',
+    trigger: 'Freitags, 17:00',
+    condition: 'Immer',
+    action: 'Report generieren & mailen',
+    status: 'Entwurf',
+    runs30d: 0,
+    timeSavedHours: 0,
+    lastRun: '—',
+    icon: 'report',
+  },
+];
+
+export interface AutomationTemplate {
+  name: string;
+  description: string;
+  trigger: string;
+  condition: string;
+  action: string;
+  icon: AutomationIcon;
+}
+
+export const automationTemplates: AutomationTemplate[] = [
+  {
+    name: 'Webinar-Follow-up',
+    description: 'Teilnehmer nach dem Webinar automatisch in dein Angebot führen.',
+    trigger: 'Webinar beendet',
+    condition: 'Teilnahme ≥ 30 Min.',
+    action: 'Angebots-Sequenz starten',
+    icon: 'mail',
+  },
+  {
+    name: 'Warenkorb-Retter',
+    description: 'Abgebrochene Käufe mit einer Erinnerung + Bonus zurückholen.',
+    trigger: 'Checkout abgebrochen',
+    condition: 'Warenkorb ≥ 100 €',
+    action: 'Erinnerung nach 2 Std. senden',
+    icon: 'invoice',
+  },
+  {
+    name: 'Testimonial-Anfrage',
+    description: 'Zufriedene Kunden automatisch um eine Bewertung bitten.',
+    trigger: '30 Tage nach Kauf',
+    condition: 'Kein offenes Ticket',
+    action: 'Bewertungs-Anfrage senden',
+    icon: 'chat',
+  },
+  {
+    name: 'Re-Engagement',
+    description: 'Inaktive Kontakte mit persönlichem Inhalt reaktivieren.',
+    trigger: '90 Tage inaktiv',
+    condition: 'Newsletter-Abonnent',
+    action: 'Reaktivierungs-Mail senden',
+    icon: 'lead',
+  },
+];
