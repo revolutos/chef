@@ -63,14 +63,11 @@ export const Head = createHead(() => (
   </>
 ));
 
-const CONVEX_URL = import.meta.env.VITE_CONVEX_URL || globalThis.process.env.CONVEX_URL!;
+const CONVEX_URL = import.meta.env.VITE_CONVEX_URL || globalThis.process.env.CONVEX_URL;
 
-if (!CONVEX_URL) {
-  throw new Error(`Missing CONVEX_URL: ${CONVEX_URL}`);
-}
-const convex = new ConvexReactClient(CONVEX_URL, {
+const convex = CONVEX_URL ? new ConvexReactClient(CONVEX_URL, {
   onServerDisconnectError: (message) => captureMessage(message),
-});
+}) : null;
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const theme = useStore(themeStore);
@@ -103,7 +100,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <ConvexProvider client={convex}>{children}</ConvexProvider>
+      {convex ? (
+        <ConvexProvider client={convex}>{children}</ConvexProvider>
+      ) : (
+        children
+      )}
       <ScrollRestoration />
       <Scripts />
     </>
