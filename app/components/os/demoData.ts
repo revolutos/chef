@@ -295,6 +295,47 @@ export type AutomationStatus = 'Aktiv' | 'Pausiert' | 'Entwurf';
 
 export type AutomationIcon = 'mail' | 'lead' | 'content' | 'invoice' | 'chat' | 'report';
 
+export type AutomationStepKind =
+  | 'trigger'
+  | 'condition'
+  | 'delay'
+  | 'email'
+  | 'whatsapp'
+  | 'push'
+  | 'task'
+  | 'generate'
+  | 'invoice'
+  | 'report'
+  | 'branch';
+
+export interface AutomationStep {
+  kind: AutomationStepKind;
+  title: string;
+  detail: string;
+  /** Betreffzeile für E-Mail-Schritte. */
+  subject?: string;
+  /** Tatsächlicher Nachrichten-/Aktionsinhalt (das „was dahinter steckt"). */
+  body?: string;
+  /** Kompakte Performance-Zeile, z. B. „68 % geöffnet · 24 % geklickt". */
+  stats?: string;
+}
+
+export type AutomationRunResult = 'Erfolgreich' | 'Läuft' | 'Wartet' | 'Übersprungen' | 'Fehler';
+
+export interface AutomationRun {
+  time: string;
+  lead: string;
+  step: string;
+  result: AutomationRunResult;
+}
+
+export interface AutomationSettings {
+  activeHours: string;
+  priority: 'Niedrig' | 'Normal' | 'Hoch';
+  stopOnReply: boolean;
+  channel: string;
+}
+
 export interface Automation {
   id: string;
   name: string;
@@ -307,6 +348,10 @@ export interface Automation {
   timeSavedHours: number;
   lastRun: string;
   icon: AutomationIcon;
+  steps: AutomationStep[];
+  runs: AutomationRun[];
+  metrics: { label: string; value: string; hint: string }[];
+  settings: AutomationSettings;
 }
 
 export const automations: Automation[] = [
@@ -322,6 +367,79 @@ export const automations: Automation[] = [
     timeSavedHours: 12.5,
     lastRun: 'vor 18 Min.',
     icon: 'mail',
+    metrics: [
+      { label: 'Ausführungen', value: '214', hint: 'letzte 30 Tage' },
+      { label: 'Öffnungsrate', value: '61,4 %', hint: 'über alle Mails' },
+      { label: 'Klickrate', value: '18,2 %', hint: 'über alle Mails' },
+      { label: 'Abschlüsse', value: '9', hint: 'aus dieser Sequenz' },
+    ],
+    steps: [
+      { kind: 'trigger', title: 'Auslöser: Neuer Lead', detail: 'Startet, sobald ein Lead im CRM angelegt wird.' },
+      {
+        kind: 'condition',
+        title: 'Bedingung: KI-Score ≥ 50',
+        detail: 'Nur Leads mit ausreichender Qualität durchlaufen die Sequenz. Kältere Leads werden übersprungen.',
+      },
+      {
+        kind: 'email',
+        title: 'E-Mail 1 · sofort',
+        detail: 'Willkommen & Erwartung setzen',
+        subject: 'Schön, dass du da bist 👋',
+        body: 'Hi {{vorname}},\n\nschön, dass du dich für {{angebot}} interessierst! In den nächsten Tagen zeige ich dir, wie andere in deiner Situation den Sprung geschafft haben – ohne mehr Stunden zu arbeiten.\n\nHeute nur eine Frage: Was ist gerade deine größte Hürde? Antworte einfach auf diese Mail – ich lese jede persönlich.\n\nBis gleich,\nViktor',
+        stats: '68 % geöffnet · 21 % geantwortet',
+      },
+      { kind: 'delay', title: 'Warte 1 Tag', detail: 'Pausiert bis zum nächsten Werktag, 09:00 Uhr.' },
+      {
+        kind: 'email',
+        title: 'E-Mail 2 · Tag 2',
+        detail: 'Mehrwert & Vertrauen aufbauen',
+        subject: 'Der Fehler, den 90 % machen',
+        body: 'Hi {{vorname}},\n\ndie meisten starten mit Taktiken – neue Tools, neue Kanäle. Der eigentliche Hebel liegt aber woanders: bei einem System, das ohne dich läuft.\n\nIn diesem 4-Minuten-Video zeige ich dir die 3 Bausteine, die den Unterschied machen: [Link]\n\nViktor',
+        stats: '59 % geöffnet · 24 % geklickt',
+      },
+      { kind: 'delay', title: 'Warte 2 Tage', detail: 'Pausiert bis Tag 4, 09:00 Uhr.' },
+      {
+        kind: 'email',
+        title: 'E-Mail 3 · Tag 4',
+        detail: 'Case Study / Social Proof',
+        subject: 'Wie Sarah in 60 Tagen auf 20k kam',
+        body: 'Hi {{vorname}},\n\nSarah war da, wo du vielleicht gerade stehst: viel zu tun, wenig System. 60 Tage später macht sie 20k im Monat – bei weniger Arbeitsstunden.\n\nHier ist ihre Geschichte in 3 Schritten: [Link]\n\nMorgen zeige ich dir, wie das für dich aussehen könnte.\n\nViktor',
+        stats: '57 % geöffnet · 19 % geklickt',
+      },
+      { kind: 'delay', title: 'Warte 2 Tage', detail: 'Pausiert bis Tag 6, 09:00 Uhr.' },
+      {
+        kind: 'email',
+        title: 'E-Mail 4 · Tag 6',
+        detail: 'Angebot & klarer Call-to-Action',
+        subject: 'Bereit für den nächsten Schritt?',
+        body: 'Hi {{vorname}},\n\nwenn du magst, schauen wir gemeinsam auf dein Business und finden den schnellsten Hebel für dich. Unverbindlich, 20 Minuten.\n\n👉 Hier deinen Termin sichern: [Kalender-Link]\n\nDie Plätze diese Woche sind begrenzt.\n\nViktor',
+        stats: '54 % geöffnet · 12 % gebucht',
+      },
+      {
+        kind: 'branch',
+        title: 'Verzweigung: hat geklickt?',
+        detail:
+          'Wenn der Lead den Kalender-Link öffnet, aber nicht bucht, wird eine persönliche Aufgabe für dich erstellt.',
+      },
+      {
+        kind: 'task',
+        title: 'Aufgabe: persönlich nachfassen',
+        detail: 'Erstellt eine CRM-Aufgabe „Warmen Lead anrufen" mit Kontext aus der Sequenz.',
+      },
+    ],
+    runs: [
+      { time: 'Heute, 09:12', lead: 'Anna Schmitt', step: 'E-Mail 1 · Willkommen', result: 'Erfolgreich' },
+      { time: 'Heute, 09:00', lead: 'Julia Krämer', step: 'E-Mail 3 · Case Study', result: 'Erfolgreich' },
+      { time: 'Heute, 08:41', lead: 'Tim Berger', step: 'Bedingung: KI-Score ≥ 50', result: 'Übersprungen' },
+      { time: 'Gestern, 09:03', lead: 'Marc Steiner', step: 'E-Mail 4 · Angebot', result: 'Erfolgreich' },
+      { time: 'Gestern, 09:00', lead: 'Lena Hoffmann', step: 'Warte 2 Tage', result: 'Wartet' },
+    ],
+    settings: {
+      activeHours: 'Werktags 09:00–18:00',
+      priority: 'Hoch',
+      stopOnReply: true,
+      channel: 'E-Mail (Postfach: viktor@revolutos.de)',
+    },
   },
   {
     id: 'a2',
@@ -335,6 +453,54 @@ export const automations: Automation[] = [
     timeSavedHours: 4,
     lastRun: 'vor 1 Std.',
     icon: 'lead',
+    metrics: [
+      { label: 'Ausführungen', value: '37', hint: 'letzte 30 Tage' },
+      { label: 'Ø Reaktionszeit', value: '8 Min.', hint: 'bis du reagierst' },
+      { label: 'Kontaktquote', value: '92 %', hint: 'noch am selben Tag' },
+      { label: 'Abschlüsse', value: '6', hint: 'aus Alarmen' },
+    ],
+    steps: [
+      {
+        kind: 'trigger',
+        title: 'Auslöser: KI-Score steigt über 80',
+        detail: 'Reagiert in Echtzeit, sobald das Scoring-Modell einen Lead als abschlussbereit einstuft.',
+      },
+      {
+        kind: 'condition',
+        title: 'Bedingung: Phase ≠ Gewonnen',
+        detail: 'Bereits gewonnene Kunden lösen keinen Alarm aus.',
+      },
+      {
+        kind: 'push',
+        title: 'Push-Benachrichtigung',
+        detail: 'Sofortige Meldung auf deinem Handy',
+        body: '🔥 Heißer Lead: {{name}} ({{firma}}) – Score {{score}}. Angebot: {{angebot}}, Wert {{wert}}. Jetzt kontaktieren, solange das Interesse hoch ist.',
+        stats: '100 % zugestellt',
+      },
+      {
+        kind: 'whatsapp',
+        title: 'WhatsApp an dich',
+        detail: 'Backup-Kanal mit Direkt-Link ins CRM',
+        body: 'Heißer Lead {{name}} wartet 👀 Score {{score}}/100. Profil öffnen: [CRM-Link] · Direkt anrufen: {{telefon}}',
+        stats: '97 % gelesen',
+      },
+      {
+        kind: 'task',
+        title: 'Aufgabe: heute kontaktieren',
+        detail: 'Legt eine priorisierte CRM-Aufgabe mit Fälligkeit „heute" an.',
+      },
+    ],
+    runs: [
+      { time: 'vor 1 Std.', lead: 'Jonas Weber', step: 'WhatsApp an dich', result: 'Erfolgreich' },
+      { time: 'Heute, 07:58', lead: 'Julia Krämer', step: 'Push-Benachrichtigung', result: 'Erfolgreich' },
+      { time: 'Gestern, 16:20', lead: 'Felix Brandt', step: 'Aufgabe: heute kontaktieren', result: 'Erfolgreich' },
+    ],
+    settings: {
+      activeHours: 'Täglich 07:00–22:00',
+      priority: 'Hoch',
+      stopOnReply: false,
+      channel: 'Push + WhatsApp',
+    },
   },
   {
     id: 'a3',
@@ -348,6 +514,42 @@ export const automations: Automation[] = [
     timeSavedHours: 6,
     lastRun: 'Mo, 08:00',
     icon: 'content',
+    metrics: [
+      { label: 'Ausführungen', value: '4', hint: 'letzte 30 Tage' },
+      { label: 'Skripte erstellt', value: '4', hint: 'zur Freigabe' },
+      { label: 'Ø Zeitersparnis', value: '90 Min.', hint: 'pro Skript' },
+      { label: 'Freigabequote', value: '75 %', hint: 'ohne große Edits' },
+    ],
+    steps: [
+      { kind: 'trigger', title: 'Auslöser: Montags, 08:00', detail: 'Wöchentlicher Zeitplan, jeweils Montagmorgen.' },
+      {
+        kind: 'condition',
+        title: 'Bedingung: Top-Post nach Reichweite',
+        detail: 'Wählt automatisch den reichweitenstärksten Post der letzten 7 Tage aus.',
+      },
+      {
+        kind: 'generate',
+        title: 'Reel-Skript generieren',
+        detail: 'KI schreibt ein 30-Sekunden-Skript in deiner Tonalität',
+        body: 'HOOK (0–3s): „Der eine Fehler, der dich Kunden kostet …"\nAUFBAU (3–20s): 3 Punkte aus dem Top-Post, gekürzt & zugespitzt.\nCTA (20–30s): „Speicher dir das – und folge für Teil 2.\"\n\nCaption: Kurze Version + 5 passende Hashtags, automatisch aus deinem Nischen-Set gewählt.',
+        stats: 'Entwurf wartet auf Freigabe',
+      },
+      {
+        kind: 'task',
+        title: 'Zur Freigabe vorlegen',
+        detail: 'Legt das Skript in der Content-Engine als Entwurf an und benachrichtigt dich.',
+      },
+    ],
+    runs: [
+      { time: 'Mo, 08:00', lead: 'Post „5 KI-Tools\"', step: 'Reel-Skript generieren', result: 'Erfolgreich' },
+      { time: '23. Jun, 08:00', lead: 'Post „Mein Setup\"', step: 'Reel-Skript generieren', result: 'Erfolgreich' },
+    ],
+    settings: {
+      activeHours: 'Montags 08:00',
+      priority: 'Normal',
+      stopOnReply: false,
+      channel: 'Content-Engine (Entwurf)',
+    },
   },
   {
     id: 'a4',
@@ -361,6 +563,45 @@ export const automations: Automation[] = [
     timeSavedHours: 3,
     lastRun: 'Gestern, 17:05',
     icon: 'invoice',
+    metrics: [
+      { label: 'Ausführungen', value: '9', hint: 'letzte 30 Tage' },
+      { label: 'Ø Zahlungseingang', value: '3,2 Tage', hint: 'nach Versand' },
+      { label: 'Fehlerquote', value: '0 %', hint: 'korrekte Rechnungen' },
+      { label: 'Offen', value: '1', hint: 'noch unbezahlt' },
+    ],
+    steps: [
+      {
+        kind: 'trigger',
+        title: 'Auslöser: Deal gewonnen',
+        detail: 'Startet, sobald ein Lead in die Phase „Gewonnen" wandert.',
+      },
+      { kind: 'condition', title: 'Bedingung: Immer', detail: 'Gilt für jeden gewonnenen Deal ohne Ausnahme.' },
+      {
+        kind: 'invoice',
+        title: 'Rechnung erstellen',
+        detail: 'Zieht Betrag, Angebot und Kundendaten automatisch aus dem CRM',
+        body: 'Rechnung Nr. {{nummer}}\nEmpfänger: {{name}}, {{firma}}\nPosition: {{angebot}}\nBetrag: {{wert}} (inkl. USt.)\nZahlungsziel: 14 Tage\n\nPDF wird automatisch erzeugt und im Kundenprofil abgelegt.',
+        stats: 'PDF automatisch erzeugt',
+      },
+      {
+        kind: 'email',
+        title: 'Rechnung versenden',
+        detail: 'Freundliche Begleit-Mail mit PDF im Anhang',
+        subject: 'Deine Rechnung & die nächsten Schritte',
+        body: 'Hi {{vorname}},\n\nfreut mich riesig, dass wir zusammenarbeiten! Im Anhang findest du deine Rechnung. Dein Onboarding startet automatisch – du bekommst gleich eine separate Mail mit allen Zugängen.\n\nAuf eine großartige Zusammenarbeit,\nViktor',
+        stats: '100 % zugestellt',
+      },
+    ],
+    runs: [
+      { time: 'Gestern, 17:05', lead: 'Mia Lorenz', step: 'Rechnung versenden', result: 'Erfolgreich' },
+      { time: '27. Jun, 20:12', lead: 'Paul Winter', step: 'Rechnung versenden', result: 'Erfolgreich' },
+    ],
+    settings: {
+      activeHours: 'Rund um die Uhr',
+      priority: 'Hoch',
+      stopOnReply: false,
+      channel: 'Rechnungssystem + E-Mail',
+    },
   },
   {
     id: 'a5',
@@ -374,6 +615,50 @@ export const automations: Automation[] = [
     timeSavedHours: 2,
     lastRun: '28. Jun, 14:10',
     icon: 'chat',
+    metrics: [
+      { label: 'Ausführungen', value: '11', hint: 'letzte 30 Tage' },
+      { label: 'Rückbuchungen', value: '6', hint: 'neuer Termin gebucht' },
+      { label: 'Rückholquote', value: '55 %', hint: 'der No-Shows' },
+      { label: 'Status', value: 'Pausiert', hint: 'aktuell inaktiv' },
+    ],
+    steps: [
+      {
+        kind: 'trigger',
+        title: 'Auslöser: Call verpasst',
+        detail: 'Startet, wenn ein gebuchter Termin ohne Erscheinen verstreicht.',
+      },
+      {
+        kind: 'condition',
+        title: 'Bedingung: KI-Score ≥ 60',
+        detail: 'Nur bei Leads, bei denen sich ein zweiter Anlauf lohnt.',
+      },
+      {
+        kind: 'email',
+        title: 'Terminlink erneut senden · nach 15 Min.',
+        detail: 'Ohne Vorwurf, mit direktem Rebooking-Link',
+        subject: 'Verpasst? Kein Problem – neuer Termin in 30 Sek.',
+        body: 'Hi {{vorname}},\n\nwir haben uns eben verpasst – passiert! Such dir einfach einen neuen Slot, der besser passt: [Kalender-Link]\n\nIch freu mich auf dich,\nViktor',
+        stats: '71 % geöffnet · 38 % neu gebucht',
+      },
+      { kind: 'delay', title: 'Warte 2 Tage', detail: 'Wenn keine Neubuchung erfolgt, folgt eine letzte Erinnerung.' },
+      {
+        kind: 'whatsapp',
+        title: 'WhatsApp-Erinnerung',
+        detail: 'Letzter, persönlicher Anstoß',
+        body: 'Hey {{vorname}}, wollen wir den Call nachholen? Hier dein Link: [Kalender]. Danach lass ich dich in Ruhe 🙂',
+        stats: '64 % gelesen · 22 % gebucht',
+      },
+    ],
+    runs: [
+      { time: '28. Jun, 14:10', lead: 'David Roth', step: 'Terminlink erneut senden', result: 'Erfolgreich' },
+      { time: '26. Jun, 11:30', lead: 'Anna Schmitt', step: 'WhatsApp-Erinnerung', result: 'Übersprungen' },
+    ],
+    settings: {
+      activeHours: 'Werktags 09:00–19:00',
+      priority: 'Normal',
+      stopOnReply: true,
+      channel: 'E-Mail + WhatsApp',
+    },
   },
   {
     id: 'a6',
@@ -387,6 +672,37 @@ export const automations: Automation[] = [
     timeSavedHours: 0,
     lastRun: '—',
     icon: 'report',
+    metrics: [
+      { label: 'Ausführungen', value: '0', hint: 'noch nicht aktiv' },
+      { label: 'Status', value: 'Entwurf', hint: 'wartet auf Aktivierung' },
+      { label: 'Geplant', value: 'Fr 17:00', hint: 'wöchentlich' },
+      { label: 'Empfänger', value: '1', hint: 'du' },
+    ],
+    steps: [
+      { kind: 'trigger', title: 'Auslöser: Freitags, 17:00', detail: 'Wöchentlicher Zeitplan zum Wochenabschluss.' },
+      { kind: 'condition', title: 'Bedingung: Immer', detail: 'Läuft jede Woche, unabhängig von den Zahlen.' },
+      {
+        kind: 'report',
+        title: 'Report generieren',
+        detail: 'KI fasst die Woche in einer Seite zusammen',
+        body: '📊 Deine Woche im Überblick:\n• Umsatz: {{umsatz}} ({{delta}} vs. Vorwoche)\n• Neue Leads: {{leads}} · davon {{heiss}} heiß\n• Bester Kanal: {{kanal}}\n• Top-Content: {{post}}\n\n💡 KI-Empfehlung der Woche: {{empfehlung}}',
+        stats: 'Vorschau verfügbar',
+      },
+      {
+        kind: 'email',
+        title: 'Report mailen',
+        detail: 'Sendet die Zusammenfassung an dein Postfach',
+        subject: 'Deine Woche in Zahlen 📊',
+        body: 'Anbei dein automatischer Wochenreport. Die 3 wichtigsten Punkte stehen ganz oben – der Rest ist zum Nachlesen.',
+      },
+    ],
+    runs: [],
+    settings: {
+      activeHours: 'Freitags 17:00',
+      priority: 'Niedrig',
+      stopOnReply: false,
+      channel: 'E-Mail',
+    },
   },
 ];
 
