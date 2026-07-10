@@ -102,11 +102,22 @@ export const crmStages: CrmStage[] = ['Neu', 'Qualifiziert', 'Call gebucht', 'An
 export const crmSources = ['Instagram', 'YouTube', 'Newsletter', 'Affiliates', 'Empfehlung', 'LinkedIn'] as const;
 export type CrmSource = (typeof crmSources)[number];
 
+export type CrmActivityKind = 'note' | 'call' | 'email' | 'meeting' | 'stage' | 'task' | 'system';
+
+export interface CrmActivity {
+  id: string;
+  kind: CrmActivityKind;
+  text: string;
+  detail?: string;
+  time: string;
+}
+
 export interface CrmLead {
   id: string;
   name: string;
   company: string;
   email: string;
+  phone: string;
   offer: string;
   source: CrmSource;
   stage: CrmStage;
@@ -116,9 +127,10 @@ export interface CrmLead {
   lastActivity: string;
   nextAction: string;
   notes: string;
+  activities: CrmActivity[];
 }
 
-export const crmLeads: CrmLead[] = [
+const baseCrmLeads: Omit<CrmLead, 'phone' | 'activities'>[] = [
   {
     id: 'l1',
     name: 'Sarah Klein',
@@ -288,6 +300,64 @@ export const crmLeads: CrmLead[] = [
     notes: 'Über Partner-Link von Tim B. gekommen. Sehr aktiv in der Community.',
   },
 ];
+
+/** Deterministische Telefonnummer aus der Lead-ID (nur Demo). */
+function seedPhone(id: string): string {
+  const n = id.replace(/\D/g, '').padEnd(7, '4').slice(0, 7);
+  return `+49 151 ${n.slice(0, 3)} ${n.slice(3, 7)}`;
+}
+
+/** Baut eine plausible Aktivitäten-Historie aus den Kern-Feldern eines Leads. */
+function seedActivities(lead: Omit<CrmLead, 'phone' | 'activities'>): CrmActivity[] {
+  const activities: CrmActivity[] = [
+    {
+      id: `${lead.id}-a1`,
+      kind: 'system',
+      text: 'KI-Score aktualisiert',
+      detail: `Neuer Score: ${lead.score}/100`,
+      time: lead.lastActivity,
+    },
+  ];
+  if (lead.stage === 'Gewonnen') {
+    activities.push({
+      id: `${lead.id}-a2`,
+      kind: 'stage',
+      text: 'Deal gewonnen 🎉',
+      detail: `${lead.offer} · ${lead.value.toLocaleString('de-DE')} €`,
+      time: lead.lastActivity,
+    });
+  } else if (lead.stage === 'Angebot') {
+    activities.push({
+      id: `${lead.id}-a2`,
+      kind: 'email',
+      text: 'Angebot gesendet',
+      detail: lead.offer,
+      time: lead.lastActivity,
+    });
+  } else if (lead.stage === 'Call gebucht') {
+    activities.push({
+      id: `${lead.id}-a2`,
+      kind: 'meeting',
+      text: 'Termin gebucht',
+      detail: lead.nextAction,
+      time: lead.lastActivity,
+    });
+  }
+  activities.push({
+    id: `${lead.id}-a3`,
+    kind: 'system',
+    text: 'Lead erstellt',
+    detail: `Quelle: ${lead.source}`,
+    time: '24. Jun, 08:11',
+  });
+  return activities;
+}
+
+export const crmLeads: CrmLead[] = baseCrmLeads.map((lead) => ({
+  ...lead,
+  phone: seedPhone(lead.id),
+  activities: seedActivities(lead),
+}));
 
 /* ------------------------------ Automationen ------------------------------ */
 
