@@ -44,7 +44,7 @@ const navSections: { section: string; items: NavItem[] }[] = [
     section: 'Business',
     items: [
       { key: 'crm', label: 'CRM & Leads', icon: UsersIcon, href: '/os/crm' },
-      { key: 'content', label: 'Content-Engine', icon: PencilSquareIcon },
+      { key: 'content', label: 'Content-Engine', icon: PencilSquareIcon, href: '/os/content' },
       { key: 'funnels', label: 'Funnels & Angebote', icon: FunnelIcon },
       { key: 'automations', label: 'Automationen', icon: BoltIcon, href: '/os/automations' },
     ],
