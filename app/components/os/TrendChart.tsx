@@ -1,5 +1,9 @@
 import { useMemo, useRef, useState } from 'react';
-import type { RevenuePoint } from './demoData';
+
+export interface TrendPoint {
+  label: string;
+  value: number;
+}
 
 const SERIES = '#9085E9'; // validierte Serienfarbe auf dunkler Fläche (≥3:1, OKLCH-Band)
 const GRID = 'rgba(255,255,255,0.07)';
@@ -9,30 +13,52 @@ const W = 720;
 const H = 240;
 const PAD = { top: 16, right: 12, bottom: 28, left: 52 };
 
-function formatEuro(value: number) {
-  return `${value.toLocaleString('de-DE')} €`;
+/** Rundet auf eine „schöne" Achsen-Obergrenze (1/2/2,5/5 × 10^n). */
+function niceCeil(max: number) {
+  const pow = 10 ** Math.floor(Math.log10(Math.max(max, 1)));
+  for (const factor of [1, 2, 2.5, 5, 10]) {
+    if (factor * pow >= max) {
+      return factor * pow;
+    }
+  }
+  return 10 * pow;
+}
+
+function defaultFormat(value: number) {
+  return value.toLocaleString('de-DE');
 }
 
 /**
- * Flächen-Chart für die Umsatzentwicklung: eine Serie, Hairline-Grid,
+ * Flächen-Chart für Zeitreihen: eine Serie, Hairline-Grid,
  * Crosshair + Tooltip beim Hover. Reines SVG, keine Chart-Bibliothek.
  */
-export function RevenueChart({ data }: { data: RevenuePoint[] }) {
+export function TrendChart({
+  data,
+  ariaLabel,
+  formatValue = defaultFormat,
+}: {
+  data: TrendPoint[];
+  ariaLabel: string;
+  formatValue?: (value: number) => string;
+}) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState<number | null>(null);
 
-  const { points, ticks, xFor, yFor } = useMemo(() => {
+  const { points, ticks, xFor, yFor, xLabelIdx } = useMemo(() => {
     const max = Math.max(...data.map((d) => d.value));
-    const yMax = Math.ceil(max / 5000) * 5000;
+    const yMax = niceCeil(max);
     const innerW = W - PAD.left - PAD.right;
     const innerH = H - PAD.top - PAD.bottom;
     const xForFn = (i: number) => PAD.left + (i / (data.length - 1)) * innerW;
     const yForFn = (v: number) => PAD.top + innerH - (v / yMax) * innerH;
+    const last = data.length - 1;
+    const labelIdx = Array.from(new Set([0, Math.round(last / 3), Math.round((2 * last) / 3), last]));
     return {
       points: data.map((d, i) => ({ x: xForFn(i), y: yForFn(d.value) })),
       ticks: [0, yMax / 2, yMax],
       xFor: xForFn,
       yFor: yForFn,
+      xLabelIdx: labelIdx,
     };
   }, [data]);
 
@@ -53,14 +79,9 @@ export function RevenueChart({ data }: { data: RevenuePoint[] }) {
 
   return (
     <div ref={wrapRef} className="relative" onMouseMove={handleMove} onMouseLeave={() => setHover(null)}>
-      <svg
-        viewBox={`0 0 ${W} ${H}`}
-        className="block w-full"
-        role="img"
-        aria-label="Umsatzentwicklung der letzten 30 Tage"
-      >
+      <svg viewBox={`0 0 ${W} ${H}`} className="block w-full" role="img" aria-label={ariaLabel}>
         <defs>
-          <linearGradient id="os-rev-fill" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id="os-trend-fill" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={SERIES} stopOpacity="0.28" />
             <stop offset="100%" stopColor={SERIES} stopOpacity="0" />
           </linearGradient>
@@ -82,7 +103,7 @@ export function RevenueChart({ data }: { data: RevenuePoint[] }) {
           </g>
         ))}
 
-        {[0, 9, 19, 29].map((i) => (
+        {xLabelIdx.map((i) => (
           <text
             key={i}
             x={xFor(i)}
@@ -95,7 +116,7 @@ export function RevenueChart({ data }: { data: RevenuePoint[] }) {
           </text>
         ))}
 
-        <path d={areaPath} fill="url(#os-rev-fill)" />
+        <path d={areaPath} fill="url(#os-trend-fill)" />
         <path d={linePath} fill="none" stroke={SERIES} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
 
         {hover !== null ? (
@@ -132,7 +153,7 @@ export function RevenueChart({ data }: { data: RevenuePoint[] }) {
             className="whitespace-nowrap text-sm font-semibold text-[#F4F5F9]"
             style={{ fontVariantNumeric: 'tabular-nums' }}
           >
-            {formatEuro(active.value)}
+            {formatValue(active.value)}
           </p>
         </div>
       )}

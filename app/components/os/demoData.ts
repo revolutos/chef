@@ -399,6 +399,158 @@ export interface AutomationTemplate {
   icon: AutomationIcon;
 }
 
+/* -------------------------------- Analytics ------------------------------- */
+
+export type AnalyticsRangeKey = '7d' | '30d' | '90d';
+
+export interface AnalyticsKpi {
+  label: string;
+  value: string;
+  delta: string;
+  up: boolean;
+}
+
+export interface FunnelStage {
+  stage: string;
+  value: number;
+}
+
+export interface ChannelRow {
+  name: string;
+  leads: number;
+  conversion: number;
+  revenue: number;
+  deltaPct: number;
+}
+
+/** Deterministischer PRNG, damit Server- und Client-Render identisch sind. */
+function mulberry32(seed: number) {
+  return function () {
+    seed |= 0;
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const monthNames = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun'];
+
+/** 90 Tage Lead-Trend, endet am 30. Juni: steigender Trend mit Wochenend-Dip. */
+function buildLeadTrend(): RevenuePoint[] {
+  const rand = mulberry32(42);
+  const points: RevenuePoint[] = [];
+  const end = new Date(2025, 5, 30);
+  for (let i = 89; i >= 0; i--) {
+    const date = new Date(end);
+    date.setDate(end.getDate() - i);
+    const progress = (89 - i) / 89;
+    const weekday = date.getDay();
+    const weekendDip = weekday === 0 || weekday === 6 ? 0.6 : 1;
+    const base = (6 + progress * 10) * weekendDip;
+    const value = Math.max(2, Math.round(base + (rand() - 0.5) * 4));
+    points.push({ label: `${date.getDate()}. ${monthNames[date.getMonth()]}`, value });
+  }
+  return points;
+}
+
+const leadTrend90 = buildLeadTrend();
+
+export const analyticsRanges: Record<
+  AnalyticsRangeKey,
+  {
+    label: string;
+    kpis: AnalyticsKpi[];
+    leadTrend: RevenuePoint[];
+    funnel: FunnelStage[];
+    channels: ChannelRow[];
+  }
+> = {
+  '7d': {
+    label: 'Letzte 7 Tage',
+    kpis: [
+      { label: 'Neue Leads', value: '86', delta: '+9,2 %', up: true },
+      { label: 'Conversion-Rate', value: '5,1 %', delta: '+0,4 Pkt.', up: true },
+      { label: 'Ø Deal-Wert', value: '1.840 €', delta: '−120 €', up: false },
+      { label: 'Umsatz pro Lead', value: '94 €', delta: '+6 €', up: true },
+    ],
+    leadTrend: leadTrend90.slice(-7),
+    funnel: [
+      { stage: 'Besucher', value: 4820 },
+      { stage: 'Leads', value: 86 },
+      { stage: 'Qualifiziert', value: 31 },
+      { stage: 'Kunden', value: 4 },
+    ],
+    channels: [
+      { name: 'Instagram', leads: 34, conversion: 5.8, revenue: 3400, deltaPct: 14 },
+      { name: 'YouTube', leads: 21, conversion: 4.9, revenue: 2180, deltaPct: 6 },
+      { name: 'Newsletter', leads: 16, conversion: 6.2, revenue: 1560, deltaPct: -3 },
+      { name: 'Affiliates', leads: 9, conversion: 3.8, revenue: 740, deltaPct: 11 },
+      { name: 'LinkedIn', leads: 6, conversion: 4.1, revenue: 520, deltaPct: 22 },
+    ],
+  },
+  '30d': {
+    label: 'Letzte 30 Tage',
+    kpis: [
+      { label: 'Neue Leads', value: '342', delta: '+12,4 %', up: true },
+      { label: 'Conversion-Rate', value: '4,8 %', delta: '+0,6 Pkt.', up: true },
+      { label: 'Ø Deal-Wert', value: '1.960 €', delta: '+140 €', up: true },
+      { label: 'Umsatz pro Lead', value: '87 €', delta: '+11 €', up: true },
+    ],
+    leadTrend: leadTrend90.slice(-30),
+    funnel: [
+      { stage: 'Besucher', value: 19400 },
+      { stage: 'Leads', value: 342 },
+      { stage: 'Qualifiziert', value: 118 },
+      { stage: 'Kunden', value: 16 },
+    ],
+    channels: [
+      { name: 'Instagram', leads: 128, conversion: 5.2, revenue: 11200, deltaPct: 18 },
+      { name: 'YouTube', leads: 86, conversion: 4.6, revenue: 7900, deltaPct: 9 },
+      { name: 'Newsletter', leads: 64, conversion: 6.0, revenue: 5400, deltaPct: 4 },
+      { name: 'Affiliates', leads: 41, conversion: 3.9, revenue: 2800, deltaPct: -5 },
+      { name: 'LinkedIn', leads: 23, conversion: 4.3, revenue: 1900, deltaPct: 31 },
+    ],
+  },
+  '90d': {
+    label: 'Letzte 90 Tage',
+    kpis: [
+      { label: 'Neue Leads', value: '891', delta: '+28,7 %', up: true },
+      { label: 'Conversion-Rate', value: '4,4 %', delta: '+1,1 Pkt.', up: true },
+      { label: 'Ø Deal-Wert', value: '1.870 €', delta: '+220 €', up: true },
+      { label: 'Umsatz pro Lead', value: '82 €', delta: '+19 €', up: true },
+    ],
+    leadTrend: leadTrend90,
+    funnel: [
+      { stage: 'Besucher', value: 52600 },
+      { stage: 'Leads', value: 891 },
+      { stage: 'Qualifiziert', value: 297 },
+      { stage: 'Kunden', value: 39 },
+    ],
+    channels: [
+      { name: 'Instagram', leads: 331, conversion: 4.9, revenue: 27800, deltaPct: 24 },
+      { name: 'YouTube', leads: 224, conversion: 4.2, revenue: 19600, deltaPct: 15 },
+      { name: 'Newsletter', leads: 168, conversion: 5.7, revenue: 13900, deltaPct: 8 },
+      { name: 'Affiliates', leads: 102, conversion: 3.6, revenue: 6800, deltaPct: -2 },
+      { name: 'LinkedIn', leads: 66, conversion: 4.0, revenue: 4700, deltaPct: 41 },
+    ],
+  },
+};
+
+export const heatmapDays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+export const heatmapSlots = ['6–10', '10–14', '14–18', '18–24'];
+
+/** Lead-Aufkommen pro Wochentag × Tageszeit (relativ, 0–1). */
+export const leadHeatmap: number[][] = [
+  [0.35, 0.7, 0.55, 0.85],
+  [0.4, 0.75, 0.6, 0.8],
+  [0.3, 0.65, 0.5, 0.7],
+  [0.45, 0.8, 0.65, 0.9],
+  [0.35, 0.6, 0.45, 0.65],
+  [0.15, 0.3, 0.35, 0.5],
+  [0.1, 0.25, 0.4, 1.0],
+];
+
 export const automationTemplates: AutomationTemplate[] = [
   {
     name: 'Webinar-Follow-up',

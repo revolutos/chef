@@ -23,7 +23,7 @@ import { StarIcon } from '@heroicons/react/24/solid';
 import { classNames } from '~/utils/classNames';
 import { revenueSeries } from './demoData';
 import { BrandMark, GhostButton, GlowOrb, GradientButton, SectionTag, os } from './Ui';
-import { RevenueChart } from './RevenueChart';
+import { TrendChart } from './TrendChart';
 
 const navLinks = [
   { label: 'Module', href: '#module' },
@@ -293,7 +293,11 @@ export function OsLanding() {
                   <p className={classNames('mb-3 text-[11px] font-medium uppercase tracking-wider', os.textMuted)}>
                     Umsatzentwicklung · Juni
                   </p>
-                  <RevenueChart data={revenueSeries} />
+                  <TrendChart
+                    data={revenueSeries}
+                    ariaLabel="Umsatzentwicklung der letzten 30 Tage"
+                    formatValue={(v) => `${v.toLocaleString('de-DE')} €`}
+                  />
                 </div>
               </div>
             </div>

@@ -11,7 +11,11 @@ import { aiActivities, leadSources, pipelineLeads, quickPrompts, revenueSeries }
 import type { PipelineStatus } from './demoData';
 import { GlowOrb, GradientButton, os } from './Ui';
 import { OsShell } from './OsShell';
-import { RevenueChart } from './RevenueChart';
+import { TrendChart } from './TrendChart';
+
+function formatEuro(value: number) {
+  return `${value.toLocaleString('de-DE')} €`;
+}
 
 const kpis = [
   { label: 'Monatsumsatz', value: '24.860 €', delta: '+18,2 %', up: true, hint: 'vs. Vormonat' },
@@ -85,7 +89,11 @@ export function OsDashboard() {
             <p className="text-sm font-semibold text-[#C4B5FD]">Prognose Juli: 29.400 €</p>
           </div>
           <div className="mt-5">
-            <RevenueChart data={revenueSeries} />
+            <TrendChart
+              data={revenueSeries}
+              ariaLabel="Umsatzentwicklung der letzten 30 Tage"
+              formatValue={formatEuro}
+            />
           </div>
         </div>
 

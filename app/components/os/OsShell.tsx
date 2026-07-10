@@ -52,7 +52,7 @@ const navSections: { section: string; items: NavItem[] }[] = [
   {
     section: 'Insights',
     items: [
-      { key: 'analytics', label: 'Analytics', icon: ChartBarIcon },
+      { key: 'analytics', label: 'Analytics', icon: ChartBarIcon, href: '/os/analytics' },
       { key: 'reports', label: 'Berichte', icon: DocumentChartBarIcon },
     ],
   },
