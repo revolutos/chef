@@ -18,6 +18,7 @@ import { automations as automationSeed, automationTemplates } from './demoData';
 import type { Automation, AutomationIcon, AutomationStatus } from './demoData';
 import { GradientButton, os } from './Ui';
 import { OsShell } from './OsShell';
+import { OsAutomationDetail } from './OsAutomationDetail';
 
 const icons: Record<AutomationIcon, typeof EnvelopeIcon> = {
   mail: EnvelopeIcon,
@@ -58,13 +59,13 @@ function FlowChip({ label, kind }: { label: string; kind: 'trigger' | 'condition
 }
 
 /** Schalter zum Aktivieren/Pausieren einer Automation. */
-function Toggle({ on, onChange, label }: { on: boolean; onChange: () => void; label: string }) {
+function Toggle({ on, onClick, label }: { on: boolean; onClick: (e: React.MouseEvent) => void; label: string }) {
   return (
     <button
       role="switch"
       aria-checked={on}
       aria-label={label}
-      onClick={onChange}
+      onClick={onClick}
       className={classNames(
         'relative h-6 w-11 shrink-0 rounded-full border transition-colors',
         on ? 'border-[#8B5CF6]/60 bg-gradient-to-r from-[#8B5CF6] to-[#5B7CFA]' : 'border-white/[0.15] bg-white/[0.08]',
@@ -80,9 +81,54 @@ function Toggle({ on, onChange, label }: { on: boolean; onChange: () => void; la
   );
 }
 
+/** Erzeugt aus einer Vorlage eine vollständige Entwurfs-Automation. */
+function automationFromTemplate(name: string): Automation | null {
+  const template = automationTemplates.find((t) => t.name === name);
+  if (!template) {
+    return null;
+  }
+  return {
+    id: `a${Date.now()}`,
+    name: template.name,
+    description: template.description,
+    trigger: template.trigger,
+    condition: template.condition,
+    action: template.action,
+    status: 'Entwurf',
+    runs30d: 0,
+    timeSavedHours: 0,
+    lastRun: '—',
+    icon: template.icon,
+    metrics: [
+      { label: 'Ausführungen', value: '0', hint: 'noch nicht aktiv' },
+      { label: 'Status', value: 'Entwurf', hint: 'wartet auf Aktivierung' },
+      { label: 'Kanal', value: 'E-Mail', hint: 'anpassbar' },
+      { label: 'Empfänger', value: 'Auto', hint: 'aus Zielgruppe' },
+    ],
+    steps: [
+      { kind: 'trigger', title: `Auslöser: ${template.trigger}`, detail: 'Startet die Automation.' },
+      {
+        kind: 'condition',
+        title: `Bedingung: ${template.condition}`,
+        detail: 'Nur passende Kontakte durchlaufen die Automation.',
+      },
+      {
+        kind: 'email',
+        title: template.action,
+        detail: 'Von der KI vorbereiteter Nachrichtenentwurf.',
+        subject: '(wird beim Aktivieren generiert)',
+        body: 'Die KI erstellt beim Aktivieren einen Textentwurf in deiner Tonalität, den du vor dem ersten Versand prüfst und freigibst.',
+      },
+    ],
+    runs: [],
+    settings: { activeHours: 'Werktags 09:00–18:00', priority: 'Normal', stopOnReply: true, channel: 'E-Mail' },
+  };
+}
+
 export function OsAutomations() {
   const [items, setItems] = useState<Automation[]>(automationSeed);
   const [filter, setFilter] = useState<FilterOption>('Alle');
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const filtered = useMemo(
     () => (filter === 'Alle' ? items : items.filter((a) => a.status === filter)),
@@ -113,176 +159,202 @@ export function OsAutomations() {
   };
 
   const applyTemplate = (name: string) => {
-    const template = automationTemplates.find((t) => t.name === name);
-    if (!template) {
-      return;
+    const created = automationFromTemplate(name);
+    if (created) {
+      setItems((prev) => [created, ...prev]);
     }
-    setItems((prev) => [
-      {
-        id: `a${Date.now()}`,
-        name: template.name,
-        description: template.description,
-        trigger: template.trigger,
-        condition: template.condition,
-        action: template.action,
-        status: 'Entwurf',
-        runs30d: 0,
-        timeSavedHours: 0,
-        lastRun: '—',
-        icon: template.icon,
-      },
-      ...prev,
-    ]);
   };
+
+  const selected = items.find((a) => a.id === selectedId) ?? null;
 
   return (
     <OsShell active="automations" searchPlaceholder="Suche in Automationen …">
-      {/* Header */}
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Automationen</h1>
-          <p className={classNames('mt-1 text-sm', os.textSecondary)}>
-            Dein KI-Team arbeitet rund um die Uhr — jede Automation spart dir echte Stunden.
-          </p>
-        </div>
-        <GradientButton className="!px-4 !py-2.5">
-          <PlusIcon className="size-4" />
-          Neue Automation
-        </GradientButton>
-      </div>
-
-      {/* KPIs */}
-      <section aria-label="Automation-Kennzahlen" className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {kpis.map((kpi) => (
-          <div key={kpi.label} className={classNames(os.card, os.cardHover, 'p-5')}>
-            <p className={classNames('text-xs font-medium uppercase tracking-wider', os.textMuted)}>{kpi.label}</p>
-            <p className="mt-2 text-3xl font-bold tracking-tight" style={{ fontVariantNumeric: 'tabular-nums' }}>
-              {kpi.value}
-            </p>
-            <p className={classNames('mt-2 text-xs', os.textMuted)}>{kpi.hint}</p>
-          </div>
-        ))}
-      </section>
-
-      {/* Filter */}
-      <div className="mt-6 flex flex-wrap gap-1.5">
-        {filterOptions.map((option) => (
-          <button
-            key={option}
-            onClick={() => setFilter(option)}
-            className={classNames(
-              'rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
-              filter === option
-                ? 'border-[#8B5CF6]/60 bg-[#8B5CF6]/20 text-[#C4B5FD]'
-                : 'border-white/[0.1] bg-white/[0.03] text-[#A6ACC2] hover:border-white/[0.2]',
-            )}
-          >
-            {option}
-          </button>
-        ))}
-      </div>
-
-      {/* Automation-Liste */}
-      <section className="mt-4 space-y-4">
-        {filtered.map((automation) => {
-          const Icon = icons[automation.icon];
-          const isOn = automation.status === 'Aktiv';
-          return (
-            <div key={automation.id} className={classNames(os.card, os.cardHover, 'p-5')}>
-              <div className="flex flex-wrap items-start gap-4">
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-[#8B5CF6]/30 bg-[#8B5CF6]/10">
-                  <Icon className="size-5 text-[#A78BFA]" />
-                </span>
-
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <h2 className="text-base font-semibold">{automation.name}</h2>
-                    <span
-                      className={classNames(
-                        'inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-semibold',
-                        statusStyles[automation.status],
-                      )}
-                    >
-                      {automation.status}
-                    </span>
-                  </div>
-                  <p className={classNames('mt-1 text-sm', os.textSecondary)}>{automation.description}</p>
-
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <FlowChip label={automation.trigger} kind="trigger" />
-                    <ArrowRightIcon className="size-3.5 shrink-0 text-[#6B7288]" />
-                    <FlowChip label={automation.condition} kind="condition" />
-                    <ArrowRightIcon className="size-3.5 shrink-0 text-[#6B7288]" />
-                    <FlowChip label={automation.action} kind="action" />
-                  </div>
-                </div>
-
-                <div className="flex shrink-0 flex-col items-end gap-3">
-                  {automation.status === 'Entwurf' ? (
-                    <button
-                      onClick={() => toggleStatus(automation.id)}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-[#8B5CF6]/40 bg-[#8B5CF6]/10 px-3 py-1.5 text-xs font-semibold text-[#C4B5FD] transition-colors hover:bg-[#8B5CF6]/20"
-                    >
-                      <PlayIcon className="size-3.5" />
-                      Aktivieren
-                    </button>
-                  ) : (
-                    <Toggle on={isOn} onChange={() => toggleStatus(automation.id)} label={automation.name} />
-                  )}
-                  <div className={classNames('flex items-center gap-4 text-xs', os.textMuted)}>
-                    <span className="inline-flex items-center gap-1" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                      <CheckCircleIcon className="size-3.5" />
-                      {automation.runs30d}× / 30 T.
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <ClockIcon className="size-3.5" />
-                      {automation.lastRun}
-                    </span>
-                  </div>
-                </div>
-              </div>
+      {selected ? (
+        <OsAutomationDetail
+          automation={selected}
+          onBack={() => setSelectedId(null)}
+          onToggle={() => toggleStatus(selected.id)}
+        />
+      ) : (
+        <>
+          {/* Header */}
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">Automationen</h1>
+              <p className={classNames('mt-1 text-sm', os.textSecondary)}>
+                Dein KI-Team arbeitet rund um die Uhr — jede Automation spart dir echte Stunden.
+              </p>
             </div>
-          );
-        })}
-        {filtered.length === 0 && (
-          <p className={classNames(os.card, 'p-10 text-center text-sm', os.textMuted)}>
-            Keine Automationen mit diesem Status.
-          </p>
-        )}
-      </section>
+            <GradientButton className="!px-4 !py-2.5">
+              <PlusIcon className="size-4" />
+              Neue Automation
+            </GradientButton>
+          </div>
 
-      {/* Vorlagen */}
-      <section className="mt-10">
-        <div className="flex items-center gap-2">
-          <SparklesIcon className="size-5 text-[#A78BFA]" />
-          <h2 className="text-base font-semibold">Beliebte Vorlagen</h2>
-        </div>
-        <p className={classNames('mt-1 text-sm', os.textSecondary)}>
-          Mit einem Klick übernehmen — die KI passt Texte und Timing an dein Business an.
-        </p>
-        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {automationTemplates.map((template) => {
-            const Icon = icons[template.icon];
-            return (
-              <div key={template.name} className={classNames(os.card, os.cardHover, 'flex flex-col p-5')}>
-                <span className="flex size-10 items-center justify-center rounded-xl border border-[#5B7CFA]/30 bg-[#5B7CFA]/10">
-                  <Icon className="size-5 text-[#A5B8FF]" />
-                </span>
-                <h3 className="mt-3 text-sm font-semibold">{template.name}</h3>
-                <p className={classNames('mt-1 flex-1 text-xs leading-relaxed', os.textSecondary)}>
-                  {template.description}
+          {/* KPIs */}
+          <section
+            aria-label="Automation-Kennzahlen"
+            className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
+          >
+            {kpis.map((kpi) => (
+              <div key={kpi.label} className={classNames(os.card, os.cardHover, 'p-5')}>
+                <p className={classNames('text-xs font-medium uppercase tracking-wider', os.textMuted)}>{kpi.label}</p>
+                <p className="mt-2 text-3xl font-bold tracking-tight" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                  {kpi.value}
                 </p>
-                <button
-                  onClick={() => applyTemplate(template.name)}
-                  className="mt-4 rounded-lg border border-white/[0.12] bg-white/[0.04] px-3 py-2 text-xs font-semibold transition-colors hover:border-[#8B5CF6]/50 hover:text-[#C4B5FD]"
-                >
-                  Vorlage verwenden
-                </button>
+                <p className={classNames('mt-2 text-xs', os.textMuted)}>{kpi.hint}</p>
               </div>
-            );
-          })}
-        </div>
-      </section>
+            ))}
+          </section>
+
+          {/* Filter */}
+          <div className="mt-6 flex flex-wrap gap-1.5">
+            {filterOptions.map((option) => (
+              <button
+                key={option}
+                onClick={() => setFilter(option)}
+                className={classNames(
+                  'rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
+                  filter === option
+                    ? 'border-[#8B5CF6]/60 bg-[#8B5CF6]/20 text-[#C4B5FD]'
+                    : 'border-white/[0.1] bg-white/[0.03] text-[#A6ACC2] hover:border-white/[0.2]',
+                )}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+
+          {/* Automation-Liste */}
+          <section className="mt-4 space-y-4">
+            {filtered.map((automation) => {
+              const Icon = icons[automation.icon];
+              const isOn = automation.status === 'Aktiv';
+              return (
+                <div
+                  key={automation.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setSelectedId(automation.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setSelectedId(automation.id);
+                    }
+                  }}
+                  className={classNames(os.card, os.cardHover, 'cursor-pointer p-5 text-left')}
+                >
+                  <div className="flex flex-wrap items-start gap-4">
+                    <span className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-[#8B5CF6]/30 bg-[#8B5CF6]/10">
+                      <Icon className="size-5 text-[#A78BFA]" />
+                    </span>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2.5">
+                        <h2 className="text-base font-semibold">{automation.name}</h2>
+                        <span
+                          className={classNames(
+                            'inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-semibold',
+                            statusStyles[automation.status],
+                          )}
+                        >
+                          {automation.status}
+                        </span>
+                      </div>
+                      <p className={classNames('mt-1 text-sm', os.textSecondary)}>{automation.description}</p>
+
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <FlowChip label={automation.trigger} kind="trigger" />
+                        <ArrowRightIcon className="size-3.5 shrink-0 text-[#6B7288]" />
+                        <FlowChip label={automation.condition} kind="condition" />
+                        <ArrowRightIcon className="size-3.5 shrink-0 text-[#6B7288]" />
+                        <FlowChip label={automation.action} kind="action" />
+                      </div>
+
+                      <p className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-[#A78BFA]">
+                        {automation.steps.length} Schritte · Details ansehen
+                        <ArrowRightIcon className="size-3.5" />
+                      </p>
+                    </div>
+
+                    <div className="flex shrink-0 flex-col items-end gap-3">
+                      {automation.status === 'Entwurf' ? (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleStatus(automation.id);
+                          }}
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-[#8B5CF6]/40 bg-[#8B5CF6]/10 px-3 py-1.5 text-xs font-semibold text-[#C4B5FD] transition-colors hover:bg-[#8B5CF6]/20"
+                        >
+                          <PlayIcon className="size-3.5" />
+                          Aktivieren
+                        </button>
+                      ) : (
+                        <Toggle
+                          on={isOn}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleStatus(automation.id);
+                          }}
+                          label={automation.name}
+                        />
+                      )}
+                      <div className={classNames('flex items-center gap-4 text-xs', os.textMuted)}>
+                        <span className="inline-flex items-center gap-1" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                          <CheckCircleIcon className="size-3.5" />
+                          {automation.runs30d}× / 30 T.
+                        </span>
+                        <span className="inline-flex items-center gap-1">
+                          <ClockIcon className="size-3.5" />
+                          {automation.lastRun}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            {filtered.length === 0 && (
+              <p className={classNames(os.card, 'p-10 text-center text-sm', os.textMuted)}>
+                Keine Automationen mit diesem Status.
+              </p>
+            )}
+          </section>
+
+          {/* Vorlagen */}
+          <section className="mt-10">
+            <div className="flex items-center gap-2">
+              <SparklesIcon className="size-5 text-[#A78BFA]" />
+              <h2 className="text-base font-semibold">Beliebte Vorlagen</h2>
+            </div>
+            <p className={classNames('mt-1 text-sm', os.textSecondary)}>
+              Mit einem Klick übernehmen — die KI passt Texte und Timing an dein Business an.
+            </p>
+            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {automationTemplates.map((template) => {
+                const Icon = icons[template.icon];
+                return (
+                  <div key={template.name} className={classNames(os.card, os.cardHover, 'flex flex-col p-5')}>
+                    <span className="flex size-10 items-center justify-center rounded-xl border border-[#5B7CFA]/30 bg-[#5B7CFA]/10">
+                      <Icon className="size-5 text-[#A5B8FF]" />
+                    </span>
+                    <h3 className="mt-3 text-sm font-semibold">{template.name}</h3>
+                    <p className={classNames('mt-1 flex-1 text-xs leading-relaxed', os.textSecondary)}>
+                      {template.description}
+                    </p>
+                    <button
+                      onClick={() => applyTemplate(template.name)}
+                      className="mt-4 rounded-lg border border-white/[0.12] bg-white/[0.04] px-3 py-2 text-xs font-semibold transition-colors hover:border-[#8B5CF6]/50 hover:text-[#C4B5FD]"
+                    >
+                      Vorlage verwenden
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        </>
+      )}
     </OsShell>
   );
 }
