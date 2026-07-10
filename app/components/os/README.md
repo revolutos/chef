@@ -12,9 +12,14 @@ Coaches, Consultants, Creator, digitale Produktverkäufer, Affiliates, Influence
 | `/os/crm`         | `app/routes/os.crm.tsx`         | CRM & Leads (Liste, Board, interaktives Lead-Panel: Notizen/Aktion editieren, Aktivitäten protokollieren, E-Mail verfassen) |
 | `/os/automations` | `app/routes/os.automations.tsx` | Automationen (Liste + Detailansicht: Workflow-Schritte, Nachrichteninhalte, Verlauf, Einstellungen)                         |
 | `/os/analytics`   | `app/routes/os.analytics.tsx`   | Analytics (Lead-Trend, Funnel, Kanäle, Heatmap)                                                                             |
+| `/os/content`     | `app/routes/os.content.tsx`     | Content-Engine (Kalender/Liste + Editor: KI-Generierung, Plattform-Vorschau, Hashtags, Status-Workflow, Planung)            |
 
 Gemeinsame Shell (Sidebar + Topbar) für alle Module: `OsShell.tsx`. Noch nicht gebaute
 Module sind in der Navigation mit „Bald" markiert.
+
+Die KI-Content-Generierung (`generateVariants`, `rewriteBody` in `demoData.ts`) ist
+aktuell simuliert und an einer Stelle gekapselt — später 1:1 durch einen Claude-API-Aufruf
+ersetzbar.
 
 ## Design-System
 

@@ -971,3 +971,271 @@ export const automationTemplates: AutomationTemplate[] = [
     icon: 'lead',
   },
 ];
+
+/* ----------------------------- Content-Engine ----------------------------- */
+
+export const contentPlatforms = ['Instagram', 'LinkedIn', 'YouTube', 'TikTok', 'Newsletter', 'Blog'] as const;
+export type ContentPlatform = (typeof contentPlatforms)[number];
+
+export const contentStatuses = ['Idee', 'Entwurf', 'Geplant', 'Veröffentlicht'] as const;
+export type ContentStatus = (typeof contentStatuses)[number];
+
+export const contentFormats = ['Post', 'Reel', 'Karussell', 'Story', 'Video', 'Artikel', 'E-Mail'] as const;
+export type ContentFormat = (typeof contentFormats)[number];
+
+export const contentTones = ['Inspirierend', 'Direkt', 'Storytelling', 'Experte', 'Locker'] as const;
+export type ContentTone = (typeof contentTones)[number];
+
+export const weekdayLabels = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+
+export interface ContentMetrics {
+  reach: number;
+  likes: number;
+  comments: number;
+  shares: number;
+}
+
+export interface ContentItem {
+  id: string;
+  title: string;
+  platform: ContentPlatform;
+  format: ContentFormat;
+  status: ContentStatus;
+  tone: ContentTone;
+  body: string;
+  hashtags: string[];
+  /** 0 = Montag … 6 = Sonntag; für den Kalender. */
+  weekday: number;
+  time: string;
+  dateLabel: string;
+  aiGenerated: boolean;
+  metrics?: ContentMetrics;
+}
+
+export const contentItems: ContentItem[] = [
+  {
+    id: 'c1',
+    title: '5 KI-Tools, die dein Business 2026 verändern',
+    platform: 'Instagram',
+    format: 'Reel',
+    status: 'Veröffentlicht',
+    tone: 'Direkt',
+    body: 'Diese 5 Tools sparen dir jede Woche 10+ Stunden 👇\n\n1. Dein Business OS für Leads & Follow-ups\n2. KI-Texter für Captions in deiner Stimme\n3. Auto-Scheduler für alle Kanäle\n4. Smart-Analytics mit Prognose\n5. Der KI-Assistent, der deine Zahlen kennt\n\nSpeicher dir das für später – und folge für Teil 2.',
+    hashtags: ['#KIBusiness', '#Solopreneur', '#Automatisierung', '#OnlineBusiness', '#Produktivität'],
+    weekday: 0,
+    time: '18:00',
+    dateLabel: 'Mo, 18:00',
+    aiGenerated: true,
+    metrics: { reach: 24800, likes: 1840, comments: 212, shares: 486 },
+  },
+  {
+    id: 'c2',
+    title: 'Warum 90 % der Coaches am Marketing scheitern',
+    platform: 'LinkedIn',
+    format: 'Post',
+    status: 'Geplant',
+    tone: 'Experte',
+    body: 'Die meisten Coaches sind großartig in ihrem Handwerk – und unsichtbar im Markt.\n\nDer Grund ist selten das Angebot. Es ist ein fehlendes System, das aus Aufmerksamkeit planbar Kunden macht.\n\n3 Bausteine, die den Unterschied machen:\n→ Ein klares Signature-Angebot\n→ Content, der Vertrauen aufbaut\n→ Follow-ups, die nicht im Sande verlaufen\n\nWelchen dieser Bausteine baust du gerade aus?',
+    hashtags: ['#Coaching', '#Marketing', '#Selbstständigkeit'],
+    weekday: 2,
+    time: '08:00',
+    dateLabel: 'Mi, 08:00',
+    aiGenerated: false,
+  },
+  {
+    id: 'c3',
+    title: 'Juli-Newsletter: Dein Content-System in 30 Minuten/Woche',
+    platform: 'Newsletter',
+    format: 'E-Mail',
+    status: 'Entwurf',
+    tone: 'Storytelling',
+    body: 'Letzten Sonntag saß ich mit einem Kaffee da und habe meine komplette Woche an Content in 30 Minuten geplant.\n\nKein Stress, kein leeres Blatt. In dieser Ausgabe zeige ich dir mein System Schritt für Schritt …',
+    hashtags: [],
+    weekday: 3,
+    time: '10:00',
+    dateLabel: 'Do, 10:00',
+    aiGenerated: true,
+  },
+  {
+    id: 'c4',
+    title: 'So baust du einen Funnel in 5 Schritten',
+    platform: 'Instagram',
+    format: 'Karussell',
+    status: 'Geplant',
+    tone: 'Direkt',
+    body: 'Slide 1: Dein Funnel in 5 Schritten (speichern!)\nSlide 2: Lead-Magnet, der wirklich zieht\nSlide 3: Die Landingpage-Formel\nSlide 4: Die 4-teilige E-Mail-Sequenz\nSlide 5: Das Angebot, das konvertiert\nSlide 6: Folge für die Vorlagen 👉',
+    hashtags: ['#Funnel', '#OnlineMarketing', '#DigitaleProdukte', '#Leadgenerierung'],
+    weekday: 4,
+    time: '17:30',
+    dateLabel: 'Fr, 17:30',
+    aiGenerated: true,
+  },
+  {
+    id: 'c5',
+    title: 'Mein komplettes KI-Setup 2026 (Full Walkthrough)',
+    platform: 'YouTube',
+    format: 'Video',
+    status: 'Idee',
+    tone: 'Experte',
+    body: 'Idee: 12-Minuten-Walkthrough durch mein komplettes KI-Business-Setup. Vom Lead bis zur Rechnung – jedes Tool, jede Automation, live gezeigt.',
+    hashtags: [],
+    weekday: 1,
+    time: '16:00',
+    dateLabel: 'Di, 16:00',
+    aiGenerated: false,
+  },
+  {
+    id: 'c6',
+    title: 'Der eine Fehler, der dich täglich Kunden kostet',
+    platform: 'TikTok',
+    format: 'Reel',
+    status: 'Veröffentlicht',
+    tone: 'Direkt',
+    body: 'Du antwortest zu langsam.\n\nEin heißer Lead, der 24 Stunden wartet, ist ein kalter Lead. Lass eine Automation sofort reagieren – und du gewinnst Deals, die andere verlieren.',
+    hashtags: ['#Sales', '#KI', '#Business'],
+    weekday: 5,
+    time: '19:00',
+    dateLabel: 'Sa, 19:00',
+    aiGenerated: true,
+    metrics: { reach: 41200, likes: 3120, comments: 158, shares: 892 },
+  },
+  {
+    id: 'c7',
+    title: 'Case Study: Von 5k auf 20k MRR in 60 Tagen',
+    platform: 'LinkedIn',
+    format: 'Post',
+    status: 'Veröffentlicht',
+    tone: 'Storytelling',
+    body: 'Vor 60 Tagen machte Sarah 5k im Monat – bei 60-Stunden-Wochen.\n\nHeute sind es 20k. Bei weniger Stunden.\n\nWas sich geändert hat? Nicht mehr Aufwand. Ein System, das Leads automatisch aufwärmt und nachfasst. Hier ist der Weg in 3 Schritten …',
+    hashtags: ['#CaseStudy', '#Skalierung', '#Coaching'],
+    weekday: 1,
+    time: '09:00',
+    dateLabel: 'Di, 09:00',
+    aiGenerated: false,
+    metrics: { reach: 18600, likes: 940, comments: 87, shares: 143 },
+  },
+];
+
+export interface ContentIdea {
+  title: string;
+  platform: ContentPlatform;
+  format: ContentFormat;
+  angle: string;
+}
+
+/** KI-Themenvorschläge für den „Neuer Content"-Flow. */
+export const contentIdeas: ContentIdea[] = [
+  { title: '3 Denkfehler beim Preis für dein Angebot', platform: 'Instagram', format: 'Reel', angle: 'Aufklärung' },
+  { title: 'Wie ich meine Woche in 30 Min. plane', platform: 'LinkedIn', format: 'Post', angle: 'Behind the Scenes' },
+  { title: 'Der Onboarding-Ablauf, der Kunden begeistert', platform: 'Newsletter', format: 'E-Mail', angle: 'How-to' },
+  { title: '5 Hooks, die auf jedem Kanal funktionieren', platform: 'TikTok', format: 'Reel', angle: 'Listicle' },
+];
+
+/* --- KI-Generierung (simuliert; später gegen echte Claude-API tauschbar) --- */
+
+const hooksByTone: Record<ContentTone, string[]> = {
+  Inspirierend: [
+    'Stell dir vor, dein Business läuft – auch wenn du offline bist.',
+    'Der eine Gedanke, der für mich alles verändert hat:',
+    'Du bist näher an deinem Ziel, als du denkst. Hier ist der Beweis:',
+  ],
+  Direkt: [
+    'Hör auf, {topic} dem Zufall zu überlassen.',
+    'Die harte Wahrheit über {topic}:',
+    '{topic} in 3 Schritten – ohne Bullshit:',
+  ],
+  Storytelling: [
+    'Vor einem Jahr hätte ich bei {topic} fast aufgegeben.',
+    'Letzte Woche passierte etwas, das meine Sicht auf {topic} verändert hat.',
+    'Niemand hat mir das über {topic} gesagt – also sage ich es dir.',
+  ],
+  Experte: [
+    'Die meisten verstehen {topic} falsch. Hier ist, was wirklich zählt:',
+    'Was die Daten über {topic} zeigen, überrascht die meisten:',
+    '{topic} ist kein Glück. Es ist ein System. So sieht es aus:',
+  ],
+  Locker: [
+    'Okay, lass uns kurz über {topic} reden ☕',
+    'Kleiner Realtalk zu {topic}:',
+    'Ich wünschte, jemand hätte mir das über {topic} früher gesagt:',
+  ],
+};
+
+const bodyTemplates = [
+  'Die meisten machen {topic} viel zu kompliziert. Dabei brauchst du nur drei Dinge: Klarheit, ein System und Dranbleiben.\n\n→ Klarheit: Wisse genau, für wen du das tust.\n→ System: Baue es einmal, nutze es täglich.\n→ Dranbleiben: Kleine Schritte schlagen große Sprünge.',
+  'Ich habe {topic} lange dem Zufall überlassen. Der Wendepunkt kam, als ich anfing, es zu systematisieren.\n\nHeute läuft vieles automatisch – und ich kann mich auf das konzentrieren, was nur ich tun kann.',
+  'Kurz und ehrlich: {topic} entscheidet oft über Wachstum oder Stillstand.\n\nDer Hebel ist nicht mehr Aufwand, sondern bessere Systeme. Genau dafür ist ein Business OS gemacht.',
+];
+
+const ctasByPlatform: Record<ContentPlatform, string> = {
+  Instagram: 'Speicher dir das 📌 und folge für mehr.',
+  LinkedIn: 'Wie handhabst du das? Schreib es in die Kommentare.',
+  YouTube: 'Das komplette Tutorial gibt es im Video – Link in der Beschreibung.',
+  TikTok: 'Folge für Teil 2 👀',
+  Newsletter: 'Antworte einfach auf diese Mail – ich lese jede persönlich.',
+  Blog: 'Den vollständigen Guide findest du im Artikel.',
+};
+
+const hashtagPool = [
+  '#Solopreneur',
+  '#OnlineBusiness',
+  '#KIBusiness',
+  '#Automatisierung',
+  '#Marketing',
+  '#Produktivität',
+  '#Coaching',
+  '#Creator',
+  '#DigitaleProdukte',
+  '#Selbstständigkeit',
+  '#Sales',
+  '#ContentStrategie',
+];
+
+export interface GeneratedVariant {
+  hook: string;
+  body: string;
+  cta: string;
+  hashtags: string[];
+}
+
+/** Baut einen vollständigen Post-Text aus einer generierten Variante. */
+export function variantToBody(v: GeneratedVariant): string {
+  return `${v.hook}\n\n${v.body}\n\n${v.cta}`;
+}
+
+/**
+ * Simulierte KI-Content-Generierung. Erzeugt aus Thema, Tonalität und Plattform
+ * mehrere Varianten. Deterministisch pro Aufruf-Argumenten, damit Tests stabil sind.
+ * Später 1:1 durch einen Claude-API-Aufruf ersetzbar.
+ */
+export function generateVariants(
+  topic: string,
+  tone: ContentTone,
+  platform: ContentPlatform,
+  count = 3,
+): GeneratedVariant[] {
+  const cleanTopic = topic.trim() || 'dein Angebot';
+  const hooks = hooksByTone[tone];
+  const cta = ctasByPlatform[platform];
+  const variants: GeneratedVariant[] = [];
+  for (let i = 0; i < count; i++) {
+    const hook = hooks[i % hooks.length].replaceAll('{topic}', cleanTopic);
+    const body = bodyTemplates[i % bodyTemplates.length].replaceAll('{topic}', cleanTopic);
+    const tags = hashtagPool.slice(i * 2, i * 2 + 4);
+    variants.push({ hook, body, cta, hashtags: tags });
+  }
+  return variants;
+}
+
+/** Kurze KI-Umschreibungen für den Editor (Aktion-Buttons). */
+export function rewriteBody(body: string, mode: 'kürzer' | 'länger' | 'lockerer'): string {
+  const trimmed = body.trim();
+  if (mode === 'kürzer') {
+    const firstBlock = trimmed.split('\n\n')[0];
+    return `${firstBlock}\n\n(gekürzt von der KI – auf den Punkt gebracht)`;
+  }
+  if (mode === 'länger') {
+    return `${trimmed}\n\nP.S.: Wenn du tiefer einsteigen willst – ich habe dazu eine komplette Vorlage vorbereitet, die dir den Start abnimmt.`;
+  }
+  return trimmed.replaceAll('.', ' 🙂').replace(/\s+🙂/g, ' 🙂');
+}
