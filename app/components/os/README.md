@@ -13,6 +13,7 @@ Coaches, Consultants, Creator, digitale Produktverkäufer, Affiliates, Influence
 | `/os/automations` | `app/routes/os.automations.tsx` | Automationen (Liste + Detailansicht: Workflow-Schritte, Nachrichteninhalte, Verlauf, Einstellungen)                         |
 | `/os/analytics`   | `app/routes/os.analytics.tsx`   | Analytics (Lead-Trend, Funnel, Kanäle, Heatmap)                                                                             |
 | `/os/content`     | `app/routes/os.content.tsx`     | Content-Engine (Kalender/Liste + Editor: KI-Generierung, Plattform-Vorschau, Hashtags, Status-Workflow, Planung)            |
+| `/os/funnels`     | `app/routes/os.funnels.tsx`     | Funnels & Angebote (Karten + Detailansicht: Schritt-Conversion, Abbruch-Analyse, A/B-Test, Umsatz, Einstellungen)           |
 
 Gemeinsame Shell (Sidebar + Topbar) für alle Module: `OsShell.tsx`. Noch nicht gebaute
 Module sind in der Navigation mit „Bald" markiert.
