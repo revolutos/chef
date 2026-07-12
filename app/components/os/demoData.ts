@@ -1387,3 +1387,100 @@ export const funnelTemplates: FunnelTemplate[] = [
   { name: 'Tripwire-Funnel', description: 'Low-Ticket → Order-Bump → Upsell.', steps: '4 Schritte' },
   { name: 'Lead-Magnet-Funnel', description: 'Freebie → Nurture → Angebot.', steps: '3 Schritte' },
 ];
+
+/* ------------------------------ KI-Assistent ------------------------------ */
+
+export interface AssistantMessage {
+  role: 'user' | 'assistant';
+  text: string;
+  bullets?: string[];
+  actions?: string[];
+}
+
+export const assistantSuggestions = [
+  'Welche Leads sollte ich heute anrufen?',
+  'Wie war mein Umsatz diesen Monat?',
+  'Erstelle einen Content-Plan für nächste Woche',
+  'Wo verliere ich die meisten Kunden im Funnel?',
+];
+
+export const assistantSeed: AssistantMessage[] = [
+  {
+    role: 'assistant',
+    text: 'Guten Morgen, Viktor! Ich habe über Nacht deine Zahlen aktualisiert: 3 heiße Leads warten auf eine Antwort, und dein Umsatz liegt 18,2 % über dem Vormonat. Womit fangen wir an?',
+  },
+];
+
+/**
+ * Simulierter Assistent: leitet Antworten aus den echten Demo-Daten ab.
+ * Später 1:1 durch einen Claude-API-Aufruf mit Business-Kontext ersetzbar.
+ */
+export function assistantAnswer(prompt: string): AssistantMessage {
+  const q = prompt.toLowerCase();
+  const openLeads = crmLeads.filter((l) => l.stage !== 'Gewonnen' && l.stage !== 'Verloren');
+  const hot = [...openLeads].filter((l) => l.score >= 80).sort((a, b) => b.score - a.score);
+
+  if (/(lead|anruf|kontakt|prior|heiß|heiss)/.test(q)) {
+    return {
+      role: 'assistant',
+      text: `Du hast ${openLeads.length} offene Leads, davon ${hot.length} heiß (Score ≥ 80). Diese würde ich heute zuerst angehen:`,
+      bullets: hot
+        .slice(0, 3)
+        .map((l) => `${l.name} (${l.company}) · Score ${l.score} · ${l.offer} · ${l.value.toLocaleString('de-DE')} €`),
+      actions: [`${hot[0]?.name ?? 'Top-Lead'} anrufen`, 'Follow-up an alle heißen Leads senden'],
+    };
+  }
+
+  if (/(umsatz|revenue|einnahm|verdient|geld|monat)/.test(q)) {
+    const ch = analyticsRanges['30d'].channels;
+    return {
+      role: 'assistant',
+      text: 'Dein Monatsumsatz liegt bei 24.860 € (+18,2 % vs. Vormonat). Prognose für Juli: 29.400 €. Deine stärksten Kanäle:',
+      bullets: ch
+        .slice(0, 3)
+        .map((c) => `${c.name} · ${c.revenue.toLocaleString('de-DE')} € · ${c.deltaPct > 0 ? '+' : ''}${c.deltaPct} %`),
+      actions: ['Detaillierten Report öffnen'],
+    };
+  }
+
+  if (/(content|post|reel|plan|instagram|kalender)/.test(q)) {
+    return {
+      role: 'assistant',
+      text: 'Hier ist dein Content-Plan für nächste Woche — abgestimmt auf deine beste Zeit (So 18–24 Uhr) und Top-Themen:',
+      bullets: [
+        'Mo · Reel: „Der Fehler, den 90 % der Coaches machen"',
+        'Mi · Karussell: 3 KI-Tools, die dir 10 Std./Woche sparen',
+        'Fr · Newsletter: Case Study — wie Sarah auf 20k kam',
+        'So · Story-Umfrage: „Woran arbeitest du gerade?"',
+      ],
+      actions: ['In Content-Engine übernehmen'],
+    };
+  }
+
+  if (/(funnel|conversion|verlier|abbruch|abspring|kunden)/.test(q)) {
+    return {
+      role: 'assistant',
+      text: 'Der größte Abbruch passiert im „Kurs-Launch Funnel Pro" zwischen Webinar-Anmeldung und Teilnahme — nur 31,6 % erscheinen. Da liegt dein größter Hebel:',
+      bullets: [
+        'Anmeldung → Teilnahme: 31,6 % (Branchenschnitt ~40 %)',
+        'Empfehlung: 2 Erinnerungen + SMS 1 Std. vorher',
+        'Potenzial: rund +18 Teilnehmer pro Woche',
+      ],
+      actions: ['No-Show-Automation aktivieren', 'Funnel öffnen'],
+    };
+  }
+
+  if (/(follow|nachfass|erinner|sequenz)/.test(q)) {
+    return {
+      role: 'assistant',
+      text: `Ich habe ${openLeads.length} Leads gefunden, die seit über 3 Tagen keine Antwort hatten. Ich kann personalisierte Follow-up-Mails in deiner Tonalität vorbereiten — du gibst nur frei.`,
+      actions: ['Follow-up-Entwürfe erstellen', 'Betroffene Leads anzeigen'],
+    };
+  }
+
+  return {
+    role: 'assistant',
+    text: 'Ich kenne deine Leads, Zahlen, Inhalte und Funnels und kann daraus konkrete nächste Schritte ableiten. Probier zum Beispiel:',
+    bullets: assistantSuggestions,
+  };
+}

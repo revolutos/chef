@@ -37,7 +37,7 @@ const navSections: { section: string; items: NavItem[] }[] = [
     section: 'Übersicht',
     items: [
       { key: 'dashboard', label: 'Dashboard', icon: Squares2X2Icon, href: '/os/dashboard' },
-      { key: 'assistant', label: 'KI-Assistent', icon: CpuChipIcon },
+      { key: 'assistant', label: 'KI-Assistent', icon: CpuChipIcon, href: '/os/assistant' },
     ],
   },
   {
