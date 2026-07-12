@@ -1239,3 +1239,151 @@ export function rewriteBody(body: string, mode: 'kürzer' | 'länger' | 'lockere
   }
   return trimmed.replaceAll('.', ' 🙂').replace(/\s+🙂/g, ' 🙂');
 }
+
+/* ---------------------------- Funnels & Angebote --------------------------- */
+
+export type FunnelStatus = 'Live' | 'Entwurf' | 'Pausiert';
+
+export type FunnelStepKind = 'landing' | 'optin' | 'sales' | 'checkout' | 'upsell' | 'thankyou' | 'webinar' | 'email';
+
+export interface FunnelStep {
+  kind: FunnelStepKind;
+  title: string;
+  detail: string;
+  /** Besucher, die diesen Schritt erreichen. */
+  visitors: number;
+  /** Optionaler Umsatz, der auf diesem Schritt entsteht (Checkout/Upsell). */
+  revenue?: number;
+}
+
+export interface Funnel {
+  id: string;
+  name: string;
+  offer: string;
+  price: number;
+  status: FunnelStatus;
+  /** Gesamt-Conversion Besucher → Kunde in Prozent. */
+  conversion: number;
+  visitors30d: number;
+  revenue30d: number;
+  updated: string;
+  steps: FunnelStep[];
+  abTest?: { name: string; variantA: string; variantB: string; leaderPct: number; leader: 'A' | 'B' };
+  settings: { traffic: string; audience: string; followUp: string };
+}
+
+export const funnels: Funnel[] = [
+  {
+    id: 'f1',
+    name: 'Coaching-Bewerbung',
+    offer: '1:1 Coaching „Scale"',
+    price: 2400,
+    status: 'Live',
+    conversion: 3.8,
+    visitors30d: 4820,
+    revenue30d: 43200,
+    updated: 'vor 2 Std.',
+    steps: [
+      { kind: 'landing', title: 'Landingpage', detail: 'VSL + Bewerbungs-Button', visitors: 4820 },
+      { kind: 'optin', title: 'Bewerbungsformular', detail: '5 Qualifizierungs-Fragen', visitors: 812 },
+      { kind: 'webinar', title: 'Discovery-Call', detail: 'Terminbuchung im Kalender', visitors: 214 },
+      {
+        kind: 'checkout',
+        title: 'Angebot & Abschluss',
+        detail: 'Im Call oder per Zahlungslink',
+        visitors: 18,
+        revenue: 43200,
+      },
+      { kind: 'thankyou', title: 'Onboarding', detail: 'Willkommensstrecke startet', visitors: 18 },
+    ],
+    abTest: {
+      name: 'Headline-Test Landingpage',
+      variantA: '„In 90 Tagen zu 20k/Monat"',
+      variantB: '„Skaliere ohne mehr Stunden"',
+      leaderPct: 62,
+      leader: 'A',
+    },
+    settings: {
+      traffic: 'Instagram Ads + Organisch',
+      audience: 'Coaches & Berater',
+      followUp: 'No-Show Follow-up aktiv',
+    },
+  },
+  {
+    id: 'f2',
+    name: 'Kurs-Launch Funnel Pro',
+    offer: 'Online-Kurs Funnel Pro',
+    price: 990,
+    status: 'Live',
+    conversion: 5.1,
+    visitors30d: 9120,
+    revenue30d: 45990,
+    updated: 'Gestern',
+    steps: [
+      { kind: 'landing', title: 'Webinar-Anmeldung', detail: 'Kostenloses Live-Webinar', visitors: 9120 },
+      { kind: 'optin', title: 'Anmeldung bestätigt', detail: 'E-Mail + Kalender-Eintrag', visitors: 3740 },
+      { kind: 'webinar', title: 'Webinar besucht', detail: '45-Min-Präsentation + Angebot', visitors: 1180 },
+      { kind: 'sales', title: 'Angebotsseite', detail: 'Kurs mit Bonus-Stack', visitors: 640 },
+      { kind: 'checkout', title: 'Checkout', detail: 'Kurs Funnel Pro · 990 €', visitors: 46, revenue: 45540 },
+      { kind: 'upsell', title: 'Upsell: 1:1-Session', detail: '+ 450 € Order-Bump', visitors: 12, revenue: 450 },
+    ],
+    settings: {
+      traffic: 'YouTube + Newsletter',
+      audience: 'Creator & Produktverkäufer',
+      followUp: 'Nurture-Sequenz aktiv',
+    },
+  },
+  {
+    id: 'f3',
+    name: 'Membership-Trial',
+    offer: 'Membership Creator Club',
+    price: 588,
+    status: 'Pausiert',
+    conversion: 2.4,
+    visitors30d: 1360,
+    revenue30d: 8232,
+    updated: '3. Jul',
+    steps: [
+      { kind: 'landing', title: 'Trial-Landingpage', detail: '7 Tage kostenlos testen', visitors: 1360 },
+      { kind: 'checkout', title: 'Trial-Start', detail: 'Karte hinterlegen, 0 € heute', visitors: 142 },
+      { kind: 'email', title: 'Trial-Onboarding', detail: '5-teilige Aktivierungs-Serie', visitors: 142 },
+      { kind: 'upsell', title: 'Umwandlung zahlend', detail: 'Nach 7 Tagen · 49 €/Monat', visitors: 33, revenue: 8232 },
+    ],
+    settings: { traffic: 'Affiliate-Partner', audience: 'Community-Mitglieder', followUp: 'Trial-Reminder aktiv' },
+  },
+  {
+    id: 'f4',
+    name: 'Lead-Magnet: Brand-Check',
+    offer: 'Brand-Sprint Paket',
+    price: 1900,
+    status: 'Entwurf',
+    conversion: 0,
+    visitors30d: 0,
+    revenue30d: 0,
+    updated: 'vor 1 Tag',
+    steps: [
+      { kind: 'landing', title: 'Quiz-Landingpage', detail: '„Wie stark ist deine Brand?"', visitors: 0 },
+      { kind: 'optin', title: 'Ergebnis per E-Mail', detail: 'Score + persönliche Auswertung', visitors: 0 },
+      { kind: 'sales', title: 'Angebot Brand-Sprint', detail: 'Auf Basis des Quiz-Ergebnisses', visitors: 0 },
+      { kind: 'checkout', title: 'Checkout', detail: 'Brand-Sprint · 1.900 €', visitors: 0 },
+    ],
+    settings: {
+      traffic: 'Noch nicht verbunden',
+      audience: 'Studios & kleine Teams',
+      followUp: 'Noch nicht konfiguriert',
+    },
+  },
+];
+
+export interface FunnelTemplate {
+  name: string;
+  description: string;
+  steps: string;
+}
+
+export const funnelTemplates: FunnelTemplate[] = [
+  { name: 'Webinar-Funnel', description: 'Anmeldung → Webinar → Angebot → Checkout.', steps: '5 Schritte' },
+  { name: 'Bewerbungs-Funnel', description: 'VSL → Bewerbung → Call → Abschluss.', steps: '4 Schritte' },
+  { name: 'Tripwire-Funnel', description: 'Low-Ticket → Order-Bump → Upsell.', steps: '4 Schritte' },
+  { name: 'Lead-Magnet-Funnel', description: 'Freebie → Nurture → Angebot.', steps: '3 Schritte' },
+];
