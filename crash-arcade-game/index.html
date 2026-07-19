@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="color-scheme" content="dark" />
+    <title>STERNFLUG · Crash Arcade (Demo)</title>
+    <meta
+      name="description"
+      content="STERNFLUG – ein Crash-Style-Arcade-Spiel als reines Fun-Projekt mit Demo-Punkten. Kein echtes Geld."
+    />
+  </head>
+  <body>
+    <!--
+      Die komplette Oberfläche wird in src/ui.ts aufgebaut bzw. hier
+      als statisches Gerüst vorgehalten. Das <canvas> ist die Bühne für
+      Kurve, Sprite und Sternenhintergrund.
+    -->
+    <div id="app">
+      <!-- Kopfzeile -->
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand__mark" aria-hidden="true">✦</span>
+          <span class="brand__name">STERNFLUG</span>
+          <span class="brand__badge">DEMO · nur Punkte</span>
+        </div>
+        <div class="balance">
+          <span class="balance__label">Guthaben</span>
+          <span id="balance-value" class="balance__value">1000</span>
+          <span class="balance__unit">Punkte</span>
+        </div>
+      </header>
+
+      <main class="layout">
+        <!-- Spielbühne (Canvas) + History-Leiste -->
+        <section class="stage">
+          <div id="history" class="history" aria-label="Letzte Crash-Werte"></div>
+          <div class="canvas-wrap">
+            <canvas id="game-canvas"></canvas>
+            <!-- Statuszeile / Phasen-Hinweis über dem Canvas -->
+            <div id="phase-hint" class="phase-hint"></div>
+          </div>
+        </section>
+
+        <!-- Steuerung (Einsatz, Auszahlen, Fairness) -->
+        <aside class="panel">
+          <div class="card">
+            <h2 class="card__title">Einsatz</h2>
+
+            <label class="field">
+              <span class="field__label">Einsatz (Punkte)</span>
+              <div class="field__row">
+                <input id="bet-input" class="input" type="number" min="1" step="1" value="10" inputmode="numeric" />
+                <button id="bet-half" class="btn btn--ghost" type="button">½</button>
+                <button id="bet-double" class="btn btn--ghost" type="button">2×</button>
+                <button id="bet-max" class="btn btn--ghost" type="button">Max</button>
+              </div>
+            </label>
+
+            <label class="field field--switch">
+              <span class="field__label">Auto-Auszahlen bei</span>
+              <div class="field__row">
+                <input
+                  id="autocashout-input"
+                  class="input"
+                  type="number"
+                  min="1.01"
+                  step="0.01"
+                  value="2.00"
+                  inputmode="decimal"
+                />
+                <span class="input-suffix">×</span>
+                <label class="toggle">
+                  <input id="autocashout-toggle" type="checkbox" />
+                  <span class="toggle__track"><span class="toggle__thumb"></span></span>
+                </label>
+              </div>
+            </label>
+
+            <!-- Hauptaktion – wechselt je nach Phase Beschriftung & Farbe -->
+            <button id="primary-btn" class="btn btn--primary btn--big" type="button">Einsatz platzieren</button>
+
+            <div id="round-result" class="round-result" aria-live="polite"></div>
+          </div>
+
+          <div class="card">
+            <div class="card__head">
+              <h2 class="card__title">Provably Fair</h2>
+              <label class="toggle toggle--inline" title="Sound an/aus">
+                <input id="sound-toggle" type="checkbox" />
+                <span class="toggle__label">🔊</span>
+              </label>
+            </div>
+
+            <label class="field">
+              <span class="field__label">Client-Seed (frei wählbar)</span>
+              <div class="field__row">
+                <input id="client-seed-input" class="input" type="text" value="spieler-seed" />
+                <button id="client-seed-random" class="btn btn--ghost" type="button" title="Zufälligen Seed erzeugen">
+                  ⟳
+                </button>
+              </div>
+            </label>
+
+            <div class="fair-line">
+              <span class="fair-line__label">Server-Seed-Hash (Commitment)</span>
+              <code id="server-hash" class="mono mono--wrap">–</code>
+            </div>
+
+            <div class="fair-line">
+              <span class="fair-line__label">Server-Seed (nach Runde sichtbar)</span>
+              <code id="server-seed" class="mono mono--wrap">– (erst nach dem Crash)</code>
+            </div>
+
+            <button id="verify-btn" class="btn btn--ghost btn--full" type="button" disabled>
+              Letzte Runde verifizieren
+            </button>
+            <div id="verify-output" class="verify-output"></div>
+          </div>
+
+          <p class="disclaimer">
+            Reines Unterhaltungs-Demo. Es werden ausschließlich fiktive Punkte genutzt – <strong>kein echtes Geld,
+            keine Ein- oder Auszahlungen</strong>. Kein Glücksspiel.
+          </p>
+        </aside>
+      </main>
+    </div>
+
+    <!-- Vite-Einstiegspunkt -->
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
