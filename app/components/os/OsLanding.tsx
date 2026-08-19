@@ -8,6 +8,7 @@ import {
   CursorArrowRaysIcon,
   FunnelIcon,
   GlobeAltIcon,
+  MapPinIcon,
   MegaphoneIcon,
   PencilSquareIcon,
   PlayCircleIcon,
@@ -80,6 +81,11 @@ const modules = [
     icon: CpuChipIcon,
     title: 'KI-Assistent',
     text: 'Frag dein Business alles: „Welche Leads rufe ich heute an?" Antworten mit Kontext und konkreten nächsten Schritten.',
+  },
+  {
+    icon: MapPinIcon,
+    title: 'Experten-Karte',
+    text: 'Finde deutschsprachige Setter, Closer & Terminierer auf der Karte — in deiner Nähe oder weltweit. Connecten, Events und Zoom-Calls organisieren.',
   },
 ];
 
