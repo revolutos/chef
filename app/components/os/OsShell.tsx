@@ -7,6 +7,7 @@ import {
   DocumentChartBarIcon,
   FunnelIcon,
   MagnifyingGlassIcon,
+  MapPinIcon,
   PencilSquareIcon,
   RocketLaunchIcon,
   Squares2X2Icon,
@@ -23,7 +24,8 @@ export type OsNavKey =
   | 'funnels'
   | 'automations'
   | 'analytics'
-  | 'reports';
+  | 'reports'
+  | 'map';
 
 interface NavItem {
   key: OsNavKey;
@@ -48,6 +50,10 @@ const navSections: { section: string; items: NavItem[] }[] = [
       { key: 'funnels', label: 'Funnels & Angebote', icon: FunnelIcon, href: '/os/funnels' },
       { key: 'automations', label: 'Automationen', icon: BoltIcon, href: '/os/automations' },
     ],
+  },
+  {
+    section: 'Netzwerk',
+    items: [{ key: 'map', label: 'Experten-Karte', icon: MapPinIcon, href: '/os/map' }],
   },
   {
     section: 'Insights',
