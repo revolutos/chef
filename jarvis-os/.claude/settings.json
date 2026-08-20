@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "//": "Projekt-eigene Config fuer JARVIS OS. Haelt das Projekt isoliert von umgebenden Repos.",
+  "permissions": {
+    "additionalDirectories": [],
+    "deny": [
+      "Read(../app/**)",
+      "Read(../convex/**)",
+      "Read(../template/**)",
+      "Read(../chef-agent/**)",
+      "Edit(../**)",
+      "Write(../**)"
+    ]
+  }
+}
