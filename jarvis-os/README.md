@@ -17,7 +17,7 @@ jarvis-os/
 ├─ blueprint.html    visuelle Version des Blueprints
 ├─ .claude/
 │  └─ settings.json  projekt-eigene Config
-├─ brain/            2nd Brain — geteiltes Gedächtnis (Schicht 2)   ⏳ geplant
+├─ brain/            2nd Brain — geteiltes Gedächtnis (Schicht 2)   ✅ live (Markdown)
 ├─ employees/        AI Employees: SPARK, TARS, SALES (Schichten 3–4)  ⏳ geplant
 └─ routines/         Auslöser/Zeitpläne (Schicht 5)                 ⏳ geplant
 ```
@@ -31,7 +31,7 @@ JARVIS OS braucht, liegt in diesem Ordner.
 ## Baustand
 
 - [x] **Phase 1 — Kern:** `JARVIS.md` (Persona, Regeln, Business-Kontext)
-- [ ] **Phase 2 — Gedächtnis:** `brain/schema.md` (Airtable/Supabase)
+- [x] **Phase 2 — Gedächtnis:** `brain/` als Markdown (schema + leads/kunden/content/tasks/log)
 - [ ] **Phase 3 — SPARK:** erster Employee (Social/Content)
 - [ ] **Phase 4 — Autonomie:** Routine, die SPARK feuert
 - [ ] **Phase 5 — TARS:** zweiter Employee (Ops)
