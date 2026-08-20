@@ -8,3 +8,4 @@
 |-------|----------|------------------------|
 | 2026-08-20 | JARVIS | JARVIS OS als isoliertes Projekt gestartet (Phase 1: Kern-Persona). |
 | 2026-08-20 | JARVIS | 2nd Brain als Markdown umgesetzt (Phase 2), Migration nach Airtable später möglich. |
+| 2026-08-20 | JARVIS | Employee SPARK gebaut (Phase 3): Idee → Werbetext + Higgsfield-Asset → Freigabe. |

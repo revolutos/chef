@@ -92,5 +92,5 @@ von Hand gebaut wird.
 | **TARS** | Operations & Admin | `employees/tars.md` |
 | **SALES** | Leads & Ansprache (optional) | `employees/sales.md` |
 
-> Employees existieren erst, wenn ihre Datei existiert. Aktuell live: **JARVIS**.
-> Nächster Bau laut `BLUEPRINT.md`: das Gedächtnis (`brain/`), dann SPARK.
+> Employees existieren erst, wenn ihre Datei existiert. Aktuell live: **JARVIS**, **SPARK**.
+> Nächster Bau laut `BLUEPRINT.md`: SPARK autonom machen (Routine, Phase 4), dann TARS.
