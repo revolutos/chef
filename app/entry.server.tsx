@@ -33,7 +33,9 @@ export default async function handleRequest(
   _loadContext: AppLoadContext,
 ) {
   // Share page can stretch more that h-full.
-  const widthFullHeightFull = !new URL(request.url).pathname.startsWith('/share/');
+  const pathname = new URL(request.url).pathname;
+  const widthFullHeightFull = !pathname.startsWith('/share/');
+  const lang = pathname.startsWith('/zypern-') ? 'de' : 'en';
 
   const readable = await renderToReadableStream(<RemixServer context={remixContext} url={request.url} />, {
     // TODO we ought to abort, say by timeout, but it looked involved:
@@ -54,7 +56,7 @@ export default async function handleRequest(
       controller.enqueue(
         new Uint8Array(
           new TextEncoder().encode(
-            `<!DOCTYPE html><html lang="en" class="${themeStore.value}"><head>${head}</head><body><div id="root" class="${widthFullHeightFull ? 'w-full h-full' : ''}">`,
+            `<!DOCTYPE html><html lang="${lang}" class="${themeStore.value}"><head>${head}</head><body><div id="root" class="${widthFullHeightFull ? 'w-full h-full' : ''}">`,
           ),
         ),
       );

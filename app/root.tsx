@@ -2,7 +2,16 @@ import { captureRemixErrorBoundaryError, captureMessage } from '@sentry/remix';
 import { useStore } from '@nanostores/react';
 import type { LinksFunction } from '@vercel/remix';
 import { json } from '@vercel/remix';
-import { Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteLoaderData, useRouteError } from '@remix-run/react';
+import {
+  Links,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+  useMatches,
+  useRouteLoaderData,
+  useRouteError,
+} from '@remix-run/react';
 import { themeStore } from './lib/stores/theme';
 import { stripIndents } from 'chef-agent/utils/stripIndent';
 import { createHead } from 'remix-island';
@@ -86,9 +95,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const theme = useStore(themeStore);
   const loaderData = useRouteLoaderData<typeof loader>('root');
   const CONVEX_URL = import.meta.env.VITE_CONVEX_URL || (loaderData as any)?.ENV.CONVEX_URL;
+  // Eigenständige Marketing-Seiten (route handle `standalone`) werden serverseitig gerendert
+  // und laden weder Convex/Auth noch PostHog.
+  const standalone = useMatches().some((match) => (match.handle as { standalone?: boolean } | undefined)?.standalone);
 
   const [convex] = useState(() => {
-    if (!CONVEX_URL) return null;
+    if (!CONVEX_URL || standalone) return null;
     return new ConvexReactClient(
       CONVEX_URL,
       {
@@ -103,7 +115,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   useEffect(() => {
-    if (window.location.pathname.startsWith('/admin/')) {
+    if (window.location.pathname.startsWith('/admin/') || standalone) {
       return;
     }
     const key = import.meta.env.VITE_POSTHOG_KEY || '';
@@ -117,9 +129,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
       capture_pageview: true,
       persistence: 'memory',
     });
-  }, []);
+  }, [standalone]);
 
   useVersionNotificationBanner();
+
+  if (standalone) {
+    return (
+      <>
+        {children}
+        <ScrollRestoration />
+        <Scripts />
+      </>
+    );
+  }
 
   const content = (
     <ClientOnly>
