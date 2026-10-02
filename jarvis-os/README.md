@@ -19,7 +19,7 @@ jarvis-os/
 │  └─ settings.json  projekt-eigene Config
 ├─ brain/            2nd Brain — geteiltes Gedächtnis (Schicht 2)   ✅ live (Markdown)
 ├─ employees/        AI Employees: SPARK, TARS, SALES (Schichten 3–4)  ✅ SPARK live
-└─ routines/         Auslöser/Zeitpläne (Schicht 5)                 ⏳ geplant
+└─ routines/         Auslöser/Zeitpläne (Schicht 5)                 ✅ SPARK Daily live
 ```
 
 ## Wie man damit arbeitet
@@ -33,7 +33,7 @@ JARVIS OS braucht, liegt in diesem Ordner.
 - [x] **Phase 1 — Kern:** `JARVIS.md` (Persona, Regeln, Business-Kontext)
 - [x] **Phase 2 — Gedächtnis:** `brain/` als Markdown (schema + leads/kunden/content/tasks/log)
 - [x] **Phase 3 — SPARK:** erster Employee (Social/Content) — `employees/spark.md`
-- [ ] **Phase 4 — Autonomie:** Routine, die SPARK feuert
+- [x] **Phase 4 — Autonomie:** Routine „SPARK Daily" (`routines/spark-daily.md`, werktags)
 - [ ] **Phase 5 — TARS:** zweiter Employee (Ops)
 - [ ] **Phase 6 — Skalieren:** SALES, weitere Skills, Deployments
 
