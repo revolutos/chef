@@ -1,0 +1,371 @@
+<title>JARVIS OS Blueprint</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;600;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --ground:#F6F7F9;
+    --surface:#FFFFFF;
+    --surface-2:#EEF1F5;
+    --line:#D8DEE7;
+    --line-soft:#E7ECF2;
+    --ink:#141A24;
+    --ink-soft:#4B5563;
+    --ink-faint:#7A8496;
+    --accent:#C77A11;
+    --accent-glow:#E8A33D;
+    --accent-wash:rgba(232,163,61,.12);
+    --core:#1B2431;
+    --core-ink:#E9EDF3;
+    --core-faint:#8894A6;
+    --good:#2E7D5B;
+    --shadow:0 1px 2px rgba(20,26,36,.06),0 8px 24px -12px rgba(20,26,36,.18);
+  }
+  :root:not([data-theme="light"]){
+    @media (prefers-color-scheme: dark){
+      --ground:#0E1420;
+      --surface:#151D2A;
+      --surface-2:#1C2635;
+      --line:#293445;
+      --line-soft:#212B3B;
+      --ink:#E9EDF3;
+      --ink-soft:#A9B4C4;
+      --ink-faint:#6E7B8E;
+      --accent:#E8A33D;
+      --accent-glow:#F4BC5F;
+      --accent-wash:rgba(232,163,61,.10);
+      --core:#0A0F18;
+      --core-ink:#E9EDF3;
+      --core-faint:#7D8A9E;
+      --good:#4FB88A;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 18px 40px -20px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0E1420;
+    --surface:#151D2A;
+    --surface-2:#1C2635;
+    --line:#293445;
+    --line-soft:#212B3B;
+    --ink:#E9EDF3;
+    --ink-soft:#A9B4C4;
+    --ink-faint:#6E7B8E;
+    --accent:#E8A33D;
+    --accent-glow:#F4BC5F;
+    --accent-wash:rgba(232,163,61,.10);
+    --core:#0A0F18;
+    --core-ink:#E9EDF3;
+    --core-faint:#7D8A9E;
+    --good:#4FB88A;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 18px 40px -20px rgba(0,0,0,.7);
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+    font-size:17px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1000px;margin:0 auto;padding:0 24px}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:12px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--accent);
+  }
+  h1,h2,h3{font-family:"Chivo",system-ui,sans-serif;text-wrap:balance;line-height:1.08;margin:0}
+  p{margin:0}
+  a{color:var(--accent)}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;overflow:hidden;
+    background:var(--core);color:var(--core-ink);
+    border-bottom:1px solid var(--line);
+  }
+  .hero::before{
+    content:"";position:absolute;inset:0;
+    background:
+      radial-gradient(120% 90% at 82% -20%, var(--accent-wash), transparent 60%),
+      radial-gradient(60% 60% at 12% 120%, rgba(255,255,255,.04), transparent 70%);
+    pointer-events:none;
+  }
+  .hero-grid{
+    position:absolute;inset:0;opacity:.4;pointer-events:none;
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,.035) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size:44px 44px;
+    -webkit-mask-image:linear-gradient(to bottom, black, transparent 85%);
+            mask-image:linear-gradient(to bottom, black, transparent 85%);
+  }
+  .hero-inner{position:relative;padding:88px 24px 76px;max-width:1000px;margin:0 auto}
+  .status{
+    display:inline-flex;align-items:center;gap:9px;
+    font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.1em;
+    color:var(--core-faint);text-transform:uppercase;margin-bottom:26px;
+  }
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--accent-glow);
+    box-shadow:0 0 0 0 var(--accent-glow);animation:pulse 2.6s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(232,163,61,.5)}70%{box-shadow:0 0 0 10px rgba(232,163,61,0)}100%{box-shadow:0 0 0 0 rgba(232,163,61,0)}}
+  .hero h1{
+    font-weight:900;letter-spacing:-.02em;
+    font-size:clamp(38px,7vw,74px);margin:0 0 22px;
+  }
+  .hero h1 .glow{color:var(--accent-glow)}
+  .lede{
+    font-size:clamp(18px,2.4vw,22px);line-height:1.5;max-width:60ch;
+    color:var(--core-ink);opacity:.9;
+  }
+  .formula{
+    margin-top:34px;display:inline-flex;flex-wrap:wrap;gap:10px;align-items:center;
+    font-family:"IBM Plex Mono",monospace;font-size:14px;
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);
+    padding:14px 18px;border-radius:12px;color:var(--core-ink);
+  }
+  .formula b{color:var(--accent-glow);font-weight:600}
+  .formula span{color:var(--core-faint)}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:64px 0}
+  section + section{border-top:1px solid var(--line-soft)}
+  .shead{margin-bottom:36px}
+  .shead h2{font-size:clamp(26px,4vw,36px);font-weight:800;letter-spacing:-.015em;margin:12px 0 10px}
+  .shead p{color:var(--ink-soft);max-width:62ch}
+
+  /* ---------- STACK DIAGRAM ---------- */
+  .stack{display:flex;flex-direction:column;gap:10px}
+  .layer{
+    display:grid;grid-template-columns:52px 1fr;gap:20px;align-items:center;
+    background:var(--surface);border:1px solid var(--line);border-radius:14px;
+    padding:18px 22px;box-shadow:var(--shadow);position:relative;
+  }
+  .layer .lnum{
+    font-family:"Chivo",sans-serif;font-weight:900;font-size:22px;
+    color:var(--accent);text-align:center;
+  }
+  .layer .ltitle{font-family:"Chivo",sans-serif;font-weight:700;font-size:18px;margin-bottom:3px}
+  .layer .ltag{
+    font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--accent);margin-bottom:6px;display:block;
+  }
+  .layer .ldesc{color:var(--ink-soft);font-size:15px;line-height:1.5}
+  .connector{height:14px;width:2px;background:var(--line);margin:0 auto;margin-left:25px}
+
+  /* ---------- MAPPING TABLE ---------- */
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+  table{border-collapse:collapse;width:100%;min-width:640px;background:var(--surface)}
+  th,td{text-align:left;padding:15px 20px;border-bottom:1px solid var(--line-soft);font-size:15px;vertical-align:top}
+  thead th{
+    font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--ink-faint);background:var(--surface-2);border-bottom:1px solid var(--line);
+  }
+  tbody tr:last-child td{border-bottom:none}
+  td.kurs{font-weight:600;color:var(--ink)}
+  td.real{color:var(--ink-soft)}
+  td.tag .chip{
+    font-family:"IBM Plex Mono",monospace;font-size:12px;
+    background:var(--accent-wash);color:var(--accent);border:1px solid var(--accent-wash);
+    padding:3px 9px;border-radius:6px;white-space:nowrap;display:inline-block;
+  }
+  td.tag .chip.have{background:transparent;color:var(--good);border:1px solid var(--good)}
+
+  /* ---------- EMPLOYEE CARDS ---------- */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+  .card{
+    background:var(--surface);border:1px solid var(--line);border-radius:16px;
+    padding:24px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:14px;
+  }
+  .card .name{display:flex;align-items:baseline;gap:10px}
+  .card .name b{font-family:"Chivo",sans-serif;font-weight:900;font-size:22px;letter-spacing:.02em}
+  .card .role{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint)}
+  .card .task{color:var(--ink-soft);font-size:15px;line-height:1.55}
+  .spec{display:flex;flex-direction:column;gap:8px;margin-top:2px;border-top:1px solid var(--line-soft);padding-top:14px}
+  .spec .row{display:grid;grid-template-columns:78px 1fr;gap:10px;font-size:13.5px}
+  .spec .k{font-family:"IBM Plex Mono",monospace;color:var(--ink-faint);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;padding-top:1px}
+  .spec .v{color:var(--ink)}
+  .spec .v .t{
+    display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:12px;
+    background:var(--surface-2);border:1px solid var(--line);border-radius:5px;
+    padding:1px 7px;margin:0 4px 4px 0;color:var(--ink-soft);
+  }
+
+  /* ---------- ROADMAP ---------- */
+  .phases{display:flex;flex-direction:column;gap:0}
+  .phase{
+    display:grid;grid-template-columns:auto 1fr;gap:22px;position:relative;padding-bottom:26px;
+  }
+  .phase:last-child{padding-bottom:0}
+  .marker{display:flex;flex-direction:column;align-items:center;gap:0}
+  .pnum{
+    width:42px;height:42px;border-radius:11px;flex:none;
+    display:grid;place-items:center;font-family:"Chivo",sans-serif;font-weight:900;font-size:17px;
+    background:var(--core);color:var(--accent-glow);border:1px solid var(--line);z-index:1;
+  }
+  .pline{width:2px;flex:1;background:var(--line);margin-top:6px}
+  .phase:last-child .pline{display:none}
+  .pbody{padding-top:6px}
+  .pbody h3{font-family:"Chivo",sans-serif;font-weight:700;font-size:18px;margin-bottom:5px}
+  .pbody p{color:var(--ink-soft);font-size:15px;max-width:60ch}
+  .pbody .ship{
+    display:inline-block;margin-top:8px;font-family:"IBM Plex Mono",monospace;font-size:12px;
+    color:var(--good);
+  }
+  .pbody .ship::before{content:"→ liefert  ";color:var(--ink-faint)}
+
+  /* ---------- CLOSER ---------- */
+  .closer{
+    background:var(--core);color:var(--core-ink);border-radius:18px;
+    padding:44px 40px;text-align:center;position:relative;overflow:hidden;
+  }
+  .closer::before{content:"";position:absolute;inset:0;
+    background:radial-gradient(80% 120% at 50% -20%, var(--accent-wash), transparent 60%);pointer-events:none}
+  .closer .price{font-family:"Chivo",sans-serif;font-weight:900;font-size:clamp(30px,6vw,52px);letter-spacing:-.02em}
+  .closer .price s{color:var(--core-faint);font-weight:400;margin-right:14px}
+  .closer .price .free{color:var(--accent-glow)}
+  .closer p{color:var(--core-faint);margin-top:12px;max-width:52ch;margin-left:auto;margin-right:auto}
+
+  footer{padding:40px 0 64px;color:var(--ink-faint);font-size:13px;font-family:"IBM Plex Mono",monospace;text-align:center}
+
+  @media (max-width:560px){
+    body{font-size:16px}
+    .hero-inner{padding:64px 20px 56px}
+    .layer{grid-template-columns:40px 1fr;gap:14px;padding:16px 16px}
+    section{padding:52px 0}
+  }
+  @media (prefers-reduced-motion: reduce){.dot{animation:none}}
+</style>
+
+<header class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div class="status"><span class="dot"></span>System-Bauplan · v1</div>
+    <h1>Bau dein eigenes<br><span class="glow">JARVIS OS</span>.</h1>
+    <p class="lede">Der Kurs verkauft dir fünf „Produkte" für 499&nbsp;$. Es sind keine fünf Produkte — es ist <strong>eine Architektur mit fünf Rollen</strong>, und die Bausteine liegen bereits vor dir. Dieser Blueprint zeigt, wie du sie verdrahtest.</p>
+    <div class="formula">
+      <b>AI Employee</b><span>=</span>feste Aufgabe<span>+</span>richtige Tools<span>+</span>ein Auslöser
+    </div>
+  </div>
+</header>
+
+<main>
+  <section>
+    <div class="wrap">
+      <div class="shead">
+        <span class="eyebrow">01 — Architektur</span>
+        <h2>Sechs Schichten, ein System</h2>
+        <p>Jede Schicht ist für sich nützlich, doch die Reihenfolge zählt: Der Kern trägt alles, das Gedächtnis macht das System über Zeit klüger, und die Autonomie verwandelt einen Assistenten in einen Mitarbeiter.</p>
+      </div>
+      <div class="stack">
+        <div class="layer"><div class="lnum">1</div><div><span class="ltag">Kern</span><div class="ltitle">JARVIS.md — Persona &amp; Regeln</div><div class="ldesc">Wer ist JARVIS, für wen (MR.&nbsp;LOVABLE, DACH), welche Tools er nutzen darf, Tonalität und Grenzen. Das Fundament, ohne das nichts zusammenhält.</div></div></div>
+        <div class="connector"></div>
+        <div class="layer"><div class="lnum">2</div><div><span class="ltag">Gedächtnis</span><div class="ltitle">2nd Brain — Airtable / Supabase</div><div class="ldesc">Ein geteilter Speicher: Leads, Kunden, Content-Ideen, offene Tasks, getroffene Entscheidungen. Jeder Employee liest zuerst, schreibt danach zurück.</div></div></div>
+        <div class="connector"></div>
+        <div class="layer"><div class="lnum">3</div><div><span class="ltag">Fähigkeiten</span><div class="ltitle">/skills — deine Automationen</div><div class="ldesc">landingpage-builder · seo-artikel-generator · werbetext-generator · ci-generator · higgsfield-video-workflow. Das sind die „ready-to-sell client skills".</div></div></div>
+        <div class="connector"></div>
+        <div class="layer"><div class="lnum">4</div><div><span class="ltag">Mitarbeiter</span><div class="ltitle">MCP — die Hände</div><div class="ldesc">Gmail · Slack · Google&nbsp;Calendar · Todoist · Higgsfield · Apollo · Clay · Supabase · Vercel · Lovable. Senden, posten, anreichern, veröffentlichen.</div></div></div>
+        <div class="connector"></div>
+        <div class="layer"><div class="lnum">5</div><div><span class="ltag">Autonomie</span><div class="ltitle">Routines — Zeit- &amp; Event-Trigger</div><div class="ldesc">Cron-Jobs feuern Employees von selbst. Genau das macht aus einem „Assistant" einen „Employee", der auch dann arbeitet, wenn du schläfst.</div></div></div>
+        <div class="connector"></div>
+        <div class="layer"><div class="lnum">6</div><div><span class="ltag">Auslieferung</span><div class="ltitle">Lovable / Vercel</div><div class="ldesc">Kunden-Apps, Landingpages und Deployments — das Ende der Pipeline, an dem echte Ergebnisse beim Kunden landen.</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="shead">
+        <span class="eyebrow">02 — Übersetzung</span>
+        <h2>Kurs-Name → was es wirklich ist</h2>
+        <p>Marketing benennt Werkzeuge um, damit sie neu wirken. Hier die Entzauberung — und wo jeder „Bestandteil" in deinem eigenen System sitzt.</p>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Kurs-Name</th><th>Was es wirklich ist</th><th>Dein Baustein</th></tr></thead>
+          <tbody>
+            <tr><td class="kurs">JARVIS AI Assistant V6</td><td class="real">Agent mit Persona &amp; Tool-Zugriff</td><td class="tag"><span class="chip">Schicht 1 · JARVIS.md</span></td></tr>
+            <tr><td class="kurs">TARS AI Employee</td><td class="real">Ops-Agent, läuft autonom</td><td class="tag"><span class="chip">Skill + Routine</span></td></tr>
+            <tr><td class="kurs">SPARK Social Employee</td><td class="real">Content-Pipeline</td><td class="tag"><span class="chip">Video + Werbetext + Routine</span></td></tr>
+            <tr><td class="kurs">AI 2nd Brain (Agentic OS)</td><td class="real">Wissensspeicher + Loops</td><td class="tag"><span class="chip">Schicht 2 + 5</span></td></tr>
+            <tr><td class="kurs">Claude Code Masterclass</td><td class="real">Diese CLI, die du bedienst</td><td class="tag"><span class="chip have">bereits da</span></td></tr>
+            <tr><td class="kurs">11 ready-to-sell skills</td><td class="real">Verkaufbare Automationen</td><td class="tag"><span class="chip have">deine /skills</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="shead">
+        <span class="eyebrow">03 — Die Mannschaft</span>
+        <h2>Drei Kern-Employees</h2>
+        <p>Jeder ist ein eigenständiges Wesen aus Aufgabe, Tools und Auslöser. Klein anfangen: Ein einziger laufender Employee ist mehr wert als fünf halbe.</p>
+      </div>
+      <div class="cards">
+        <div class="card">
+          <div class="name"><b>JARVIS</b><span class="role">Assistent</span></div>
+          <div class="task">Zentrale Anlaufstelle und Dirigent. Beantwortet, koordiniert und delegiert an die anderen Employees.</div>
+          <div class="spec">
+            <div class="row"><span class="k">Tools</span><span class="v"><span class="t">alle</span></span></div>
+            <div class="row"><span class="k">Auslöser</span><span class="v">du, interaktiv</span></div>
+            <div class="row"><span class="k">Datei</span><span class="v"><span class="t">JARVIS.md</span></span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="name"><b>SPARK</b><span class="role">Social Media</span></div>
+          <div class="task">Aus einer Idee → Werbetext + Higgsfield-Video → Ablage in Slack/Todoist zur Freigabe.</div>
+          <div class="spec">
+            <div class="row"><span class="k">Tools</span><span class="v"><span class="t">werbetext</span><span class="t">higgsfield</span><span class="t">Slack</span></span></div>
+            <div class="row"><span class="k">Auslöser</span><span class="v">Routine · werktags 08:00</span></div>
+            <div class="row"><span class="k">Datei</span><span class="v"><span class="t">employees/spark.md</span></span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="name"><b>TARS</b><span class="role">Operations</span></div>
+          <div class="task">Posteingang triagieren, Kalender aufräumen, Tages-Briefing, offene Tasks nachfassen.</div>
+          <div class="spec">
+            <div class="row"><span class="k">Tools</span><span class="v"><span class="t">Gmail</span><span class="t">Calendar</span><span class="t">Todoist</span></span></div>
+            <div class="row"><span class="k">Auslöser</span><span class="v">Routine · täglich 07:00</span></div>
+            <div class="row"><span class="k">Datei</span><span class="v"><span class="t">employees/tars.md</span></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="shead">
+        <span class="eyebrow">04 — Reihenfolge</span>
+        <h2>Bauplan in sechs Phasen</h2>
+        <p>Jede Phase liefert etwas Nutzbares. Nach Phase&nbsp;3 läuft dein erster echter AI Employee — kein Wochenend-Sprint nötig.</p>
+      </div>
+      <div class="phases">
+        <div class="phase"><div class="marker"><div class="pnum">1</div><div class="pline"></div></div><div class="pbody"><h3>Kern schreiben</h3><p>JARVIS.md: Persona, Business-Kontext (MR.&nbsp;LOVABLE, DACH), erlaubte Tools, Tonalität, Regeln.</p><span class="ship">das Fundament</span></div></div>
+        <div class="phase"><div class="marker"><div class="pnum">2</div><div class="pline"></div></div><div class="pbody"><h3>Gedächtnis anlegen</h3><p>Airtable- oder Supabase-Struktur nach dem Schema: Leads, Kunden, Content, Tasks, Log.</p><span class="ship">geteilter Speicher</span></div></div>
+        <div class="phase"><div class="marker"><div class="pnum">3</div><div class="pline"></div></div><div class="pbody"><h3>Erster Employee — SPARK</h3><p>Als Skill bauen und manuell testen: Idee rein, Video&nbsp;+&nbsp;Text raus, Ablage zur Freigabe.</p><span class="ship">ein laufender Employee</span></div></div>
+        <div class="phase"><div class="marker"><div class="pnum">4</div><div class="pline"></div></div><div class="pbody"><h3>Autonom machen</h3><p>Routine anlegen, die SPARK nach Zeitplan feuert — jetzt arbeitet er ohne dich.</p><span class="ship">Autonomie</span></div></div>
+        <div class="phase"><div class="marker"><div class="pnum">5</div><div class="pline"></div></div><div class="pbody"><h3>Zweiter Employee — TARS</h3><p>Ops-Automation plus tägliche Routine für das Morgen-Briefing.</p><span class="ship">die Mannschaft wächst</span></div></div>
+        <div class="phase"><div class="marker"><div class="pnum">6</div><div class="pline"></div></div><div class="pbody"><h3>Skalieren</h3><p>SALES-Employee (Apollo/Clay), weitere Skills, Kunden-Deployments über Lovable/Vercel.</p><span class="ship">das volle OS</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="closer">
+        <div class="price"><s>499&nbsp;$</s><span class="free">Bausteine, die du schon hast</span></div>
+        <p>Der Kurs verkauft Anleitungen zu Werkzeugen, die du bereits bedienst. Dieser Blueprint ersetzt die Anleitung; der einzige echte Aufwand ist das Zusammensetzen — und das bauen wir Phase für Phase.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">jarvis-os/BLUEPRINT.md · MR. LOVABLE</footer>
